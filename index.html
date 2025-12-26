@@ -1,0 +1,1364 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Baby Word Scramble</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;700&family=Nunito:wght@400;600;700&display=swap" rel="stylesheet">
+
+  <style>
+    :root{
+      --bg1:#fff7fb;
+      --bg2:#f3fbff;
+      --ink:#1f2937;
+      --muted:#6b7280;
+      --card:#ffffff;
+      --line:#e5e7eb;
+      --pink:#ffb6d5;
+      --pink2:#ffd3e6;
+      --blue:#bfe8ff;
+      --mint:#c8f7e7;
+      --lav:#e7ddff;
+      --good:#16a34a;
+      --bad:#ef4444;
+      --shadow: 0 18px 40px rgba(15,23,42,.10);
+      --radius: 22px;
+      --tap: 48px;
+    }
+
+    *{ box-sizing:border-box; }
+    html,body{ height:100%; }
+    body{
+      margin:0;
+      font-family: Nunito, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      color:var(--ink);
+      background:
+        radial-gradient(1200px 700px at 15% 10%, var(--pink2), transparent 55%),
+        radial-gradient(900px 600px at 85% 20%, var(--blue), transparent 55%),
+        radial-gradient(900px 600px at 50% 95%, var(--mint), transparent 55%),
+        linear-gradient(180deg, var(--bg1), var(--bg2));
+      overflow-x:hidden;
+    }
+
+    .app{
+      min-height:100%;
+      display:flex;
+      align-items:flex-end; /* mobile thumb reach */
+      justify-content:center;
+      padding:18px 14px 22px;
+    }
+
+    .shell{
+      width:min(980px, 100%);
+      display:grid;
+      grid-template-rows: auto auto 1fr;
+      gap:12px;
+    }
+
+    /* Top decorative banner */
+    .top-banner{
+      position:relative;
+      width:100%;
+      height:84px;
+      border-radius: 22px;
+      background:
+        linear-gradient(90deg, rgba(255,182,213,.95), rgba(191,232,255,.95), rgba(200,247,231,.95));
+      box-shadow: var(--shadow);
+      overflow:hidden;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      padding:16px 16px;
+      border:1px solid rgba(255,255,255,.65);
+    }
+    .top-banner::before,
+    .top-banner::after{
+      content:"";
+      position:absolute;
+      inset:auto;
+      width:180px;
+      height:180px;
+      border-radius:999px;
+      filter: blur(0px);
+      opacity:.25;
+    }
+    .top-banner::before{ left:-40px; top:-80px; background: var(--lav); }
+    .top-banner::after{ right:-60px; bottom:-90px; background: #fff; }
+
+    .brand{
+      position:relative;
+      display:flex;
+      gap:10px;
+      align-items:center;
+      z-index:1;
+    }
+    .brand-badge{
+      width:44px;
+      height:44px;
+      border-radius:16px;
+      background: rgba(255,255,255,.75);
+      display:grid;
+      place-items:center;
+      border:1px solid rgba(255,255,255,.7);
+      box-shadow: 0 12px 18px rgba(15,23,42,.08);
+    }
+    .brand-badge svg{ width:30px; height:30px; }
+
+    .title-wrap{
+      display:flex;
+      flex-direction:column;
+      line-height:1.05;
+    }
+    .title{
+      font-family: "Baloo 2", system-ui, sans-serif;
+      font-weight:700;
+      font-size: 22px;
+      letter-spacing: .2px;
+      margin:0;
+    }
+    .subtitle{
+      margin:0;
+      font-size: 12.8px;
+      color: rgba(31,41,55,.72);
+      font-weight: 700;
+    }
+
+    .mode-pill{
+      position:relative;
+      z-index:1;
+      display:flex;
+      gap:8px;
+      align-items:center;
+      padding:8px;
+      background: rgba(255,255,255,.60);
+      border:1px solid rgba(255,255,255,.65);
+      border-radius: 999px;
+    }
+    .seg{
+      display:flex;
+      gap:6px;
+      align-items:center;
+    }
+
+    .chip{
+      border:0;
+      background: transparent;
+      padding: 10px 12px;
+      border-radius: 999px;
+      font-weight: 800;
+      color: rgba(31,41,55,.78);
+      cursor:pointer;
+      min-height: var(--tap);
+      display:flex;
+      align-items:center;
+      gap:8px;
+    }
+    .chip[aria-pressed="true"]{
+      background: rgba(255,255,255,.92);
+      box-shadow: 0 10px 18px rgba(15,23,42,.10);
+      color: var(--ink);
+    }
+    .chip svg{ width:18px; height:18px; opacity:.9; }
+
+    /* Onesie card */
+    .onesie{
+      position:relative;
+      background: rgba(255,255,255,.82);
+      border:1px solid rgba(255,255,255,.75);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      overflow:hidden;
+    }
+    .onesie-inner{
+      position:relative;
+      padding: 16px;
+    }
+
+    /* Onesie silhouette accents */
+    .onesie::before{
+      content:"";
+      position:absolute;
+      left:50%;
+      top:-26px;
+      transform:translateX(-50%);
+      width: 160px;
+      height: 68px;
+      border-radius: 0 0 38px 38px;
+      background: rgba(255,255,255,.88);
+      border:1px solid rgba(229,231,235,.9);
+      box-shadow: 0 12px 20px rgba(15,23,42,.06);
+    }
+    .onesie::after{
+      content:"";
+      position:absolute;
+      left:0; right:0; bottom:-1px;
+      height: 46px;
+      background:
+        radial-gradient(24px 24px at 30% 22%, rgba(255,182,213,.55) 45%, transparent 47%),
+        radial-gradient(24px 24px at 50% 22%, rgba(191,232,255,.55) 45%, transparent 47%),
+        radial-gradient(24px 24px at 70% 22%, rgba(200,247,231,.55) 45%, transparent 47%),
+        linear-gradient(0deg, rgba(231,221,255,.30), transparent 78%);
+      border-top: 1px solid rgba(229,231,235,.9);
+    }
+
+    .onesie-tabs{
+      display:flex;
+      gap:10px;
+      align-items:center;
+      justify-content:space-between;
+      flex-wrap:wrap;
+      padding: 14px 16px 0;
+    }
+
+    .round-meta{
+      display:flex;
+      gap:10px;
+      align-items:center;
+      flex-wrap:wrap;
+    }
+
+    .pill{
+      display:flex;
+      gap:10px;
+      align-items:center;
+      padding:10px 12px;
+      background: rgba(255,255,255,.9);
+      border:1px solid rgba(229,231,235,.95);
+      border-radius: 999px;
+      box-shadow: 0 10px 16px rgba(15,23,42,.05);
+    }
+    .pill label{
+      font-weight: 900;
+      font-size: 12.5px;
+      color: rgba(31,41,55,.78);
+    }
+
+    select{
+      appearance:none;
+      border: 0;
+      background: transparent;
+      font-weight: 900;
+      color: var(--ink);
+      cursor:pointer;
+      padding-right: 18px;
+      font-size: 13.5px;
+      outline:none;
+    }
+
+    .select-wrap{ position:relative; }
+    .select-wrap::after{
+      content:"▾";
+      position:absolute;
+      right:0;
+      top:50%;
+      transform:translateY(-50%);
+      font-weight: 900;
+      color: rgba(31,41,55,.70);
+      pointer-events:none;
+    }
+
+    .score{
+      font-weight: 900;
+      font-size: 13px;
+      color: rgba(31,41,55,.75);
+    }
+
+    .timer{
+      font-weight: 900;
+      font-size: 13px;
+      color: rgba(31,41,55,.75);
+    }
+
+    .btnrow{
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      align-items:center;
+      justify-content:flex-end;
+    }
+
+    .btn{
+      border:1px solid rgba(229,231,235,.95);
+      background: rgba(255,255,255,.92);
+      color: var(--ink);
+      font-weight: 900;
+      border-radius: 14px;
+      padding: 10px 12px;
+      cursor:pointer;
+      min-height: var(--tap);
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      box-shadow: 0 10px 16px rgba(15,23,42,.05);
+      transition: transform .12s ease, box-shadow .12s ease;
+    }
+    .btn:active{ transform: translateY(1px) scale(.99); box-shadow: 0 6px 10px rgba(15,23,42,.06); }
+    .btn.primary{
+      background: linear-gradient(90deg, rgba(255,182,213,.85), rgba(191,232,255,.85));
+      border-color: rgba(255,255,255,.7);
+    }
+    .btn.danger{
+      background: rgba(239,68,68,.08);
+      border-color: rgba(239,68,68,.25);
+    }
+    .btn svg{ width:18px; height:18px; }
+
+    .content{
+      padding: 10px 16px 18px;
+    }
+
+    .hint{
+      margin: 0 0 10px;
+      color: var(--muted);
+      font-weight: 700;
+      font-size: 13.5px;
+    }
+
+    .grid{
+      display:grid;
+      gap:10px;
+    }
+
+    .row{
+      display:grid;
+      gap:10px;
+      grid-template-columns: 1fr;
+      padding: 12px;
+      border-radius: 16px;
+      border: 1px solid rgba(229,231,235,.95);
+      background: rgba(255,255,255,.9);
+    }
+
+    .scramble{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+      flex-wrap:wrap;
+    }
+    .scramble code{
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      font-weight: 900;
+      font-size: 14px;
+      background: rgba(231,221,255,.35);
+      border: 1px dashed rgba(107,114,128,.28);
+      padding: 8px 10px;
+      border-radius: 12px;
+    }
+
+    .answer{
+      display:flex;
+      gap:10px;
+      align-items:center;
+      flex-wrap:wrap;
+    }
+
+    input[type="text"]{
+      flex: 1 1 220px;
+      min-height: var(--tap);
+      padding: 10px 12px;
+      border-radius: 14px;
+      border: 1px solid rgba(229,231,235,.95);
+      outline: none;
+      font-size: 15px;
+      font-weight: 700;
+      background: #fff;
+    }
+    input[type="text"]:focus{
+      box-shadow: 0 0 0 4px rgba(191,232,255,.45);
+      border-color: rgba(191,232,255,.8);
+    }
+    input[disabled]{
+      opacity: .7;
+      background: rgba(249,250,251,.9);
+    }
+
+    .status{
+      width: 42px;
+      height: 42px;
+      border-radius: 14px;
+      display:grid;
+      place-items:center;
+      border: 1px solid rgba(229,231,235,.95);
+      background: rgba(249,250,251,.92);
+      flex: 0 0 auto;
+    }
+    .status.good{
+      border-color: rgba(22,163,74,.30);
+      background: rgba(22,163,74,.08);
+    }
+    .status.bad{
+      border-color: rgba(239,68,68,.30);
+      background: rgba(239,68,68,.07);
+    }
+
+    .status svg{ width:22px; height:22px; }
+
+    .mini{
+      font-size: 12.5px;
+      color: var(--muted);
+      font-weight: 800;
+    }
+
+    .shake{ animation: shake .38s ease; }
+    @keyframes shake{
+      0%{ transform: translateX(0); }
+      20%{ transform: translateX(-7px); }
+      40%{ transform: translateX(7px); }
+      60%{ transform: translateX(-6px); }
+      80%{ transform: translateX(6px); }
+      100%{ transform: translateX(0); }
+    }
+
+    /* Subtle highlight when marking correct */
+    .pulse{ animation: pulse .5s ease; }
+    @keyframes pulse{
+      0%{ box-shadow: 0 0 0 0 rgba(22,163,74,.18); }
+      100%{ box-shadow: 0 0 0 14px rgba(22,163,74,0); }
+    }
+
+    .host-panel{
+      margin-top: 12px;
+      padding: 12px;
+      border-radius: 18px;
+      border: 1px solid rgba(229,231,235,.95);
+      background: rgba(231,221,255,.18);
+    }
+
+    .host-actions{
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      align-items:center;
+    }
+
+    .answers{
+      margin-top: 10px;
+      display:none;
+      gap:10px;
+    }
+    .answers.show{ display:grid; }
+
+    .answer-card{
+      border:1px solid rgba(229,231,235,.95);
+      border-radius: 18px;
+      background: rgba(255,255,255,.92);
+      padding: 12px;
+    }
+    .answer-card h3{
+      margin:0 0 6px;
+      font-family:"Baloo 2", system-ui, sans-serif;
+      font-size: 17px;
+    }
+    .answer-list{
+      margin:0;
+      padding-left: 18px;
+      color: rgba(31,41,55,.85);
+      font-weight: 700;
+      font-size: 13.5px;
+    }
+    .answer-list li{ margin: 4px 0; }
+
+    .footer{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+      flex-wrap:wrap;
+      margin-top: 12px;
+      padding: 0 4px;
+      color: rgba(31,41,55,.62);
+      font-weight: 800;
+      font-size: 12.5px;
+    }
+
+    /* Desktop layout upgrades */
+    @media (min-width: 780px){
+      .app{ align-items:center; padding:24px 18px 30px; }
+      .top-banner{ height: 92px; }
+      .row{
+        grid-template-columns: 1fr 1.6fr;
+        align-items:center;
+      }
+      .scramble{ justify-content:flex-start; }
+      .content{ padding: 10px 18px 22px; }
+      .onesie-inner{ padding: 18px; }
+    }
+
+    /* Reduce motion respect */
+    @media (prefers-reduced-motion: reduce){
+      .shake,.pulse{ animation:none !important; }
+      .btn{ transition:none; }
+    }
+  </style>
+</head>
+<body>
+  <main class="app" role="main">
+    <div class="shell">
+
+      <header class="top-banner" aria-label="Baby Word Scramble header">
+        <div class="brand">
+          <div class="brand-badge" aria-hidden="true">
+            <!-- baby onesie icon -->
+            <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M8 3.5c0 1.38 1.12 2.5 2.5 2.5h3C14.88 6 16 4.88 16 3.5" stroke="#1F2937" stroke-width="1.7" stroke-linecap="round"/>
+              <path d="M7 6.2 5.2 8c-.75.75-.75 1.97 0 2.72L7 12.5V19c0 1.66 1.34 3 3 3h4c1.66 0 3-1.34 3-3v-6.5l1.8-1.78c.75-.75.75-1.97 0-2.72L17 6.2" stroke="#1F2937" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M9.2 20.8c.4-1.2 1.5-2 2.8-2s2.4.8 2.8 2" stroke="#1F2937" stroke-width="1.7" stroke-linecap="round"/>
+              <path d="M10 14.5h4" stroke="#1F2937" stroke-width="1.7" stroke-linecap="round"/>
+            </svg>
+          </div>
+          <div class="title-wrap">
+            <h1 class="title">Baby Word Scramble</h1>
+            <p class="subtitle">Fixed rounds • One link • Player + Host modes</p>
+          </div>
+        </div>
+
+        <div class="mode-pill" aria-label="Mode switch">
+          <button id="playerBtn" class="chip" type="button" aria-pressed="true" title="Player mode">
+            <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 12a4.5 4.5 0 1 0 0-9 4.5 4.5 0 0 0 0 9Zm8 9a8 8 0 1 0-16 0" stroke="#1F2937" stroke-width="1.7" stroke-linecap="round"/></svg>
+            Player
+          </button>
+          <button id="hostBtn" class="chip" type="button" aria-pressed="false" title="Host mode">
+            <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M9 12 7 22h10l-2-10" stroke="#1F2937" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/><path d="M7 8a5 5 0 0 1 10 0c0 2.5-2 3.5-2 5H9c0-1.5-2-2.5-2-5Z" stroke="#1F2937" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            Host
+          </button>
+        </div>
+      </header>
+
+      <section class="onesie" aria-label="Game card">
+        <div class="onesie-tabs">
+          <div class="round-meta">
+            <div class="pill" aria-label="Round selector">
+              <label for="roundSelect">Round</label>
+              <span class="select-wrap">
+                <select id="roundSelect" aria-label="Choose round"></select>
+              </span>
+            </div>
+
+            <div class="pill" aria-label="Round score">
+              <span class="score" id="scoreText">0 / 0 correct</span>
+            </div>
+
+            <div class="pill" aria-label="Total score">
+              <span class="score" id="totalScoreText">Total: 0 / 0</span>
+            </div>
+
+            <div class="pill" aria-label="Timer">
+              <span class="timer" id="timerText">⏱ 00:00</span>
+              <button class="btn" id="timerToggle" type="button" aria-label="Toggle timer" style="min-height:40px;padding:8px 10px;border-radius:999px;">
+                <span id="timerToggleText">Start</span>
+              </button>
+            </div>
+          </div>
+
+          <div class="btnrow">
+            <button class="btn" id="prevRound" type="button" title="Previous round">
+              <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M15 18 9 12l6-6" stroke="#1F2937" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              Previous
+            </button>
+            <button class="btn primary" id="nextRound" type="button" title="Next round">
+              Next
+              <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M9 6l6 6-6 6" stroke="#1F2937" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </button>
+            <button class="btn danger" id="resetBtn" type="button" title="Reset my progress">
+              <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M21 12a9 9 0 1 1-3.2-6.9" stroke="#1F2937" stroke-width="1.7" stroke-linecap="round"/><path d="M21 3v6h-6" stroke="#1F2937" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              Reset
+            </button>
+          </div>
+        </div>
+
+        <div class="onesie-inner">
+          <div class="content">
+            <p class="hint" id="modeHint">Type your guess and press <b>Enter</b> or tap <b>Check</b>. Correct answers lock in.</p>
+            <div id="rows" class="grid" aria-live="polite"></div>
+
+            <div id="hostPanel" class="host-panel" hidden>
+              <div class="host-actions">
+                <div class="pill" style="gap:8px;">
+                  <label for="hostPin">Host PIN</label>
+                  <input id="hostPin" type="text" inputmode="numeric" pattern="[0-9]*" placeholder="Enter PIN" aria-label="Host PIN" style="max-width:160px;min-height:40px;border-radius:999px;" />
+                  <button class="btn primary" id="hostUnlock" type="button">Unlock</button>
+                </div>
+
+                <button class="btn" id="jumpRoundBtn" type="button" disabled>Jump to…</button>
+                <button class="btn" id="showAllAnswersBtn" type="button" disabled>Show All Answers</button>
+                <button class="btn danger" id="hostLogout" type="button" hidden>Host Logout</button>
+                <span class="mini" id="hostStatus">Locked</span>
+              </div>
+
+              <div id="answers" class="answers" aria-label="Answer key"></div>
+            </div>
+
+            <div class="footer">
+              <span>Tip: Host can tell everyone “Go to Round X” using the selector.</span>
+              <span>Progress saves on this device.</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+    </div>
+  </main>
+
+  <script>
+    // =========================
+    // CONFIG
+    // =========================
+    const HOST_PIN = "1979"; // ← change me (Host/Admin PIN)
+    const STORAGE_KEY = "baby_word_scramble_v1";
+
+    // =========================
+    // DATA (12 rounds × 12 entries)
+    // =========================
+    // NOTE: We keep plaintext answers here to allow Host mode answer key.
+    // Player mode never inserts these answers into the DOM.
+    // Validation uses SHA-256 hashes.
+    const ROUNDS = [
+      {
+        title: "Round 1",
+        items: [
+          { answer: "bottle", scramble: "OLTBTE" },
+          { answer: "pacifier", scramble: "RAEICFIP" },
+          { answer: "stroller", scramble: "RLETSORL" },
+          { answer: "diapers", scramble: "SRPAEID" },
+          { answer: "bib", scramble: "BBI" },
+          { answer: "onesie", scramble: "EINOSE" },
+          { answer: "baby shower", scramble: "YBAB WOSHER" },
+          { answer: "rattle", scramble: "TLRTAE" },
+          { answer: "teether", scramble: "REHTTEE" },
+          { answer: "crib", scramble: "BIRC" },
+          { answer: "swaddle", scramble: "DADSWEL" },
+          { answer: "bassinet", scramble: "SENIABTS" },
+        ]
+      },
+      {
+        title: "Round 2",
+        items: [
+          { answer: "baby powder", scramble: "YBAB WOPDER" },
+          { answer: "burp cloth", scramble: "BRPU HTLOC" },
+          { answer: "nursery", scramble: "SURNREY" },
+          { answer: "blanket", scramble: "KETLBAN" },
+          { answer: "high chair", scramble: "GIHH RAHIC" },
+          { answer: "binky", scramble: "NIBKY" },
+          { answer: "booties", scramble: "EISBTOO" },
+          { answer: "mittens", scramble: "TNEITSM" },
+          { answer: "baby lotion", scramble: "YBAB NTOILO" },
+          { answer: "changing pad", scramble: "GNIHCNA DAP" },
+          { answer: "baby wipe", scramble: "YBAB PEWI" },
+          { answer: "teddy bear", scramble: "DYTED EABR" },
+        ]
+      },
+      {
+        title: "Round 3",
+        items: [
+          { answer: "bottle warmer", scramble: "OTTLBE RMWRAE" },
+          { answer: "baby monitor", scramble: "YBAB TINOMRO" },
+          { answer: "rocking chair", scramble: "KCORIGN RAHIC" },
+          { answer: "story book", scramble: "YRSTO OKBO" },
+          { answer: "baby socks", scramble: "YBAB SKSOC" },
+          { answer: "newborn", scramble: "WENOBRN" },
+          { answer: "baby carrier", scramble: "YBAB RIRACRE" },
+          { answer: "play mat", scramble: "YALP TAM" },
+          { answer: "baby bath", scramble: "YBAB HTBA" },
+          { answer: "breast pump", scramble: "TSABER PMUP" },
+          { answer: "diaper bag", scramble: "RPAEDI GAB" },
+          { answer: "nursing pillow", scramble: "SNIRUGN WOLIPL" },
+        ]
+      },
+      {
+        title: "Round 4",
+        items: [
+          { answer: "baby blanket", scramble: "YBAB KETLBAN" },
+          { answer: "crib sheet", scramble: "BIRC TEESH" },
+          { answer: "baby formula", scramble: "YBAB LMFRUAO" },
+          { answer: "pacifier clip", scramble: "RAEICFIP PLIC" },
+          { answer: "baby food", scramble: "YBAB ODFO" },
+          { answer: "sippy cup", scramble: "YIPPS PCUP" },
+          { answer: "bath toy", scramble: "HTBA YTO" },
+          { answer: "diaper cream", scramble: "RPAEDI MRECAE" },
+          { answer: "baby book", scramble: "YBAB KOBO" },
+          { answer: "baby shower game", scramble: "YBAB WOSHER EMAG" },
+          { answer: "cute outfit", scramble: "ETUC TUFIFO" },
+          { answer: "sleep sack", scramble: "EESLP KCAKS" },
+        ]
+      },
+      {
+        title: "Round 5",
+        items: [
+          { answer: "baby name", scramble: "YBAB EMAN" },
+          { answer: "pregnancy", scramble: "GNANCRYPE" },
+          { answer: "ultrasound", scramble: "ASLUOTDNRU" },
+          { answer: "tiny toes", scramble: "YINT OSET" },
+          { answer: "first smile", scramble: "TSRIF LIMES" },
+          { answer: "baby giggle", scramble: "YBAB GLGIGE" },
+          { answer: "lullaby", scramble: "ALULBYL" },
+          { answer: "twin stroller", scramble: "WINT RLETSORL" },
+          { answer: "baby shower gifts", scramble: "YBAB WOSHER TSGIF" },
+          { answer: "little one", scramble: "LTILE ENO" },
+          { answer: "soft blanket", scramble: "TOSF KETLBAN" },
+          { answer: "snuggle", scramble: "GLESGUN" },
+        ]
+      },
+      {
+        title: "Round 6",
+        items: [
+          { answer: "diaper rash", scramble: "RPAEDI HSRA" },
+          { answer: "baby shampoo", scramble: "YBAB HSPMAOO" },
+          { answer: "baby towel", scramble: "YBAB WELTO" },
+          { answer: "hooded towel", scramble: "DOHDOE WELTO" },
+          { answer: "washcloth", scramble: "HSLTAWCO" },
+          { answer: "baby brush", scramble: "YBAB HRSUB" },
+          { answer: "nail clippers", scramble: "LIAN PREPCLSI" },
+          { answer: "thermometer", scramble: "RTEHMROMETE" },
+          { answer: "baby oil", scramble: "YBAB LIO" },
+          { answer: "gentle soap", scramble: "GTELNE PAOS" },
+          { answer: "laundry", scramble: "NDYUARL" },
+          { answer: "baby swing", scramble: "YBAB GNISW" },
+        ]
+      },
+      {
+        title: "Round 7",
+        items: [
+          { answer: "crib mobile", scramble: "BIRC BLEOMI" },
+          { answer: "night light", scramble: "HITNG TGHLI" },
+          { answer: "white noise", scramble: "EHWIT SIONE" },
+          { answer: "baby mobile", scramble: "YBAB BLEOMI" },
+          { answer: "baby pajamas", scramble: "YBAB SJAMYAP" },
+          { answer: "sleepy baby", scramble: "EESLYP YBAB" },
+          { answer: "nap time", scramble: "PAN EMIT" },
+          { answer: "rock a bye", scramble: "KCOR A YEB" },
+          { answer: "storybook", scramble: "YBOKRTSO" },
+          { answer: "nursery rhyme", scramble: "SURNREY EHMRY" },
+          { answer: "baby giggles", scramble: "YBAB SELGIGG" },
+          { answer: "cuddle", scramble: "LDEUCD" },
+        ]
+      },
+      {
+        title: "Round 8",
+        items: [
+          { answer: "baby registry", scramble: "YBAB RIGTSYRE" },
+          { answer: "baby shower invite", scramble: "YBAB WOSHER TEIINV" },
+          { answer: "gift wrap", scramble: "TFGI PARW" },
+          { answer: "thank you", scramble: "KHTNA UOY" },
+          { answer: "party favors", scramble: "YRATP SROVFA" },
+          { answer: "balloons", scramble: "SOOLNAB" },
+          { answer: "decorations", scramble: "NOCORATSEDI" },
+          { answer: "cupcake", scramble: "KACPCUE" },
+          { answer: "cookies", scramble: "IESOKCO" },
+          { answer: "baby shower cake", scramble: "YBAB WOSHER EKCA" },
+          { answer: "photo booth", scramble: "TOHOP HTOOB" },
+          { answer: "guess the baby", scramble: "SSEUG EHT YBAB" },
+        ]
+      },
+      {
+        title: "Round 9",
+        items: [
+          { answer: "baby shoes", scramble: "YBAB SOHES" },
+          { answer: "baby hat", scramble: "YBAB ATH" },
+          { answer: "baby mitts", scramble: "YBAB STTIM" },
+          { answer: "baby blanket", scramble: "YBAB KETLBAN" },
+          { answer: "baby bib", scramble: "YBAB BBI" },
+          { answer: "baby wipes", scramble: "YBAB SEPIW" },
+          { answer: "diaper pins", scramble: "RPAEDI SNIP" },
+          { answer: "burp time", scramble: "BRPU EMIT" },
+          { answer: "baby bottle", scramble: "YBAB OTLTBE" },
+          { answer: "baby rattle", scramble: "YBAB TLRTAE" },
+          { answer: "pacifier", scramble: "RAEICFIP" },
+          { answer: "stroller", scramble: "RLETSORL" },
+        ]
+      },
+      {
+        title: "Round 10",
+        items: [
+          { answer: "baby laugh", scramble: "YBAB HGUAF" },
+          { answer: "tiny hands", scramble: "YINT SDNAH" },
+          { answer: "sweet dreams", scramble: "EETWS SREAMD" },
+          { answer: "little star", scramble: "LTILE RATS" },
+          { answer: "peek a boo", scramble: "KEPE A OBO" },
+          { answer: "first steps", scramble: "TSRIF PSTES" },
+          { answer: "bath time", scramble: "HTBA EMIT" },
+          { answer: "snack time", scramble: "KCSAN EMIT" },
+          { answer: "tummy time", scramble: "MYTUM EMIT" },
+          { answer: "baby giggle", scramble: "YBAB GLGIGE" },
+          { answer: "big hugs", scramble: "GIB SUGH" },
+          { answer: "baby kisses", scramble: "YBAB SSEKIS" },
+        ]
+      },
+      {
+        title: "Round 11",
+        items: [
+          { answer: "baby carrier", scramble: "YBAB RIRACRE" },
+          { answer: "car seat", scramble: "RAC TAES" },
+          { answer: "stroller", scramble: "RLETSORL" },
+          { answer: "baby gate", scramble: "YBAB TEAG" },
+          { answer: "play pen", scramble: "YALP NEP" },
+          { answer: "teething ring", scramble: "GNIEHTET GNIR" },
+          { answer: "bath thermometer", scramble: "HTBA RTEHMROMETE" },
+          { answer: "diaper genie", scramble: "RPAEDI EINNEG" },
+          { answer: "baby swing", scramble: "YBAB GNISW" },
+          { answer: "rocking horse", scramble: "KCORIGN ESROH" },
+          { answer: "soft toy", scramble: "TOSF YTO" },
+          { answer: "baby book", scramble: "YBAB KOBO" },
+        ]
+      },
+      {
+        title: "Round 12",
+        items: [
+          { answer: "baby shower", scramble: "YBAB WOSHER" },
+          { answer: "new parents", scramble: "WEN SRETNAP" },
+          { answer: "congratulations", scramble: "SNOITUTLARGACON" },
+          { answer: "bundle of joy", scramble: "LEDNUB FO JOY" },
+          { answer: "little miracle", scramble: "LTILE ELRACIM" },
+          { answer: "welcome baby", scramble: "EMOCLEW YBAB" },
+          { answer: "tiny fingers", scramble: "YINT SREGNIF" },
+          { answer: "tiny toes", scramble: "YINT OSET" },
+          { answer: "sweet baby", scramble: "EETWS YBAB" },
+          { answer: "baby love", scramble: "YBAB EVOL" },
+          { answer: "baby shower fun", scramble: "YBAB WOSHER NUF" },
+          { answer: "little blessing", scramble: "LTILE GNSSIBLE" },
+        ]
+      }
+    ];
+
+    // =========================
+    // UTIL: normalize + hash (SHA-256)
+    // =========================
+    function normalizeAnswer(str){
+      return (str || "")
+        .toLowerCase()
+        .trim()
+        .replace(/\s+/g, " ")
+        .replace(/[^a-z0-9 ]/g, "");
+    }
+
+    async function sha256Hex(str){
+      const enc = new TextEncoder();
+      const buf = enc.encode(str);
+      const digest = await crypto.subtle.digest("SHA-256", buf);
+      const bytes = new Uint8Array(digest);
+      return [...bytes].map(b => b.toString(16).padStart(2, "0")).join("");
+    }
+
+    // Precompute answer hashes for player validation.
+    // We keep plaintext answers in memory for Host mode, but Player mode uses hashes.
+    const ROUND_HASHES = []; // [{ hashes: [..] }]
+
+    // =========================
+    // STATE + STORAGE
+    // =========================
+    const defaultState = () => ({
+      currentRound: 0,
+      mode: "player", // 'player' | 'host'
+      hostUnlocked: false,
+      progress: {
+        // roundIndex: { items: { itemIndex: { input: string, correct: boolean } }, timer: {running:boolean, elapsedMs:number} }
+      }
+    });
+
+    function loadState(){
+      try{
+        const raw = localStorage.getItem(STORAGE_KEY);
+        if(!raw) return defaultState();
+        const parsed = JSON.parse(raw);
+        // minimal validation
+        if(typeof parsed !== "object" || parsed === null) return defaultState();
+        return {
+          ...defaultState(),
+          ...parsed,
+          hostUnlocked: false, // always relock on refresh for safety
+          mode: "player"       // default back to player on refresh
+        };
+      }catch{
+        return defaultState();
+      }
+    }
+
+    function saveState(){
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+    }
+
+    let state = loadState();
+
+    // =========================
+    // TIMER
+    // =========================
+    let timerInterval = null;
+
+    function getRoundProgress(roundIndex){
+      if(!state.progress[roundIndex]){
+        state.progress[roundIndex] = {
+          items: {},
+          timer: { running:false, elapsedMs:0, lastTick: null }
+        };
+      }
+      return state.progress[roundIndex];
+    }
+
+    function formatTime(ms){
+      const total = Math.max(0, Math.floor(ms/1000));
+      const m = String(Math.floor(total/60)).padStart(2,"0");
+      const s = String(total%60).padStart(2,"0");
+      return `${m}:${s}`;
+    }
+
+    function syncTimerUI(){
+      const prog = getRoundProgress(state.currentRound);
+      document.getElementById("timerText").textContent = `⏱ ${formatTime(prog.timer.elapsedMs)}`;
+      document.getElementById("timerToggleText").textContent = prog.timer.running ? "Pause" : "Start";
+    }
+
+    function stopTimerInterval(){
+      if(timerInterval) clearInterval(timerInterval);
+      timerInterval = null;
+    }
+
+    function startTimerInterval(){
+      stopTimerInterval();
+      timerInterval = setInterval(() => {
+        const prog = getRoundProgress(state.currentRound);
+        if(!prog.timer.running) return;
+        const now = Date.now();
+        if(prog.timer.lastTick == null) prog.timer.lastTick = now;
+        const dt = now - prog.timer.lastTick;
+        prog.timer.lastTick = now;
+        prog.timer.elapsedMs += dt;
+        syncTimerUI();
+        saveState();
+      }, 250);
+    }
+
+    function toggleTimer(){
+      const prog = getRoundProgress(state.currentRound);
+      prog.timer.running = !prog.timer.running;
+      prog.timer.lastTick = prog.timer.running ? Date.now() : null;
+      syncTimerUI();
+      saveState();
+      if(prog.timer.running) startTimerInterval();
+    }
+
+    function resetTimerForRound(roundIndex){
+      const prog = getRoundProgress(roundIndex);
+      prog.timer = { running:false, elapsedMs:0, lastTick: null };
+      saveState();
+      if(roundIndex === state.currentRound) syncTimerUI();
+    }
+
+    // =========================
+    // UI ELEMENTS
+    // =========================
+    const rowsEl = document.getElementById("rows");
+    const roundSelectEl = document.getElementById("roundSelect");
+    const scoreTextEl = document.getElementById("scoreText");
+    const totalScoreTextEl = document.getElementById("totalScoreText");
+    const playerBtn = document.getElementById("playerBtn");
+    const hostBtn = document.getElementById("hostBtn");
+    const modeHintEl = document.getElementById("modeHint");
+    const hostPanelEl = document.getElementById("hostPanel");
+    const hostPinEl = document.getElementById("hostPin");
+    const hostUnlockEl = document.getElementById("hostUnlock");
+    const hostStatusEl = document.getElementById("hostStatus");
+    const answersEl = document.getElementById("answers");
+    const jumpRoundBtn = document.getElementById("jumpRoundBtn");
+    const showAllAnswersBtn = document.getElementById("showAllAnswersBtn");
+    const hostLogoutBtn = document.getElementById("hostLogout");
+
+    // Buttons
+    document.getElementById("prevRound").addEventListener("click", () => setRound(state.currentRound - 1));
+    document.getElementById("nextRound").addEventListener("click", () => setRound(state.currentRound + 1));
+    document.getElementById("resetBtn").addEventListener("click", resetProgress);
+    document.getElementById("timerToggle").addEventListener("click", toggleTimer);
+
+    // Host logout
+    hostLogoutBtn.addEventListener("click", () => {
+      state.hostUnlocked = false;
+      hostPinEl.value = "";
+      hostStatusEl.textContent = "Locked";
+      jumpRoundBtn.disabled = true;
+      showAllAnswersBtn.disabled = true;
+      hostLogoutBtn.hidden = true;
+      answersEl.classList.remove("show");
+      answersEl.innerHTML = "";
+      saveState();
+      renderRound();
+    });
+
+    // Mode toggles
+    playerBtn.addEventListener("click", () => setMode("player"));
+    hostBtn.addEventListener("click", () => setMode("host"));
+
+    // Round selector
+    roundSelectEl.addEventListener("change", (e) => setRound(parseInt(e.target.value, 10)));
+
+    // Host unlock
+    hostUnlockEl.addEventListener("click", unlockHost);
+    hostPinEl.addEventListener("keydown", (e) => {
+      if(e.key === "Enter") unlockHost();
+    });
+
+    // Host quick actions
+    jumpRoundBtn.addEventListener("click", () => {
+      if(!state.hostUnlocked) return;
+      const pick = prompt(`Jump to which round? (1-${ROUNDS.length})`);
+      const n = Number(pick);
+      if(Number.isFinite(n) && n >= 1 && n <= ROUNDS.length){
+        setRound(n - 1);
+      }
+    });
+
+    showAllAnswersBtn.addEventListener("click", () => {
+      if(!state.hostUnlocked) return;
+      renderHostAnswers({ all: true });
+    });
+
+    // =========================
+    // INIT
+    // =========================
+    (async function init(){
+      // Build select options
+      roundSelectEl.innerHTML = "";
+      ROUNDS.forEach((r, idx) => {
+        const opt = document.createElement("option");
+        opt.value = String(idx);
+        opt.textContent = `Round ${idx+1}`;
+        roundSelectEl.appendChild(opt);
+      });
+
+      // Precompute hashes (normalized)
+      for(const round of ROUNDS){
+        const hashes = [];
+        for(const it of round.items){
+          hashes.push(await sha256Hex(normalizeAnswer(it.answer)));
+        }
+        ROUND_HASHES.push({ hashes });
+      }
+
+      // Ensure currentRound valid
+      if(state.currentRound < 0 || state.currentRound >= ROUNDS.length) state.currentRound = 0;
+      saveState();
+
+      setMode("player", { silent: true });
+      setRound(state.currentRound, { silent: true });
+      startTimerInterval();
+    })();
+
+    // =========================
+    // MODE / RENDER
+    // =========================
+    function setMode(mode, opts={}){
+      state.mode = mode;
+
+      playerBtn.setAttribute("aria-pressed", mode === "player" ? "true" : "false");
+      hostBtn.setAttribute("aria-pressed", mode === "host" ? "true" : "false");
+
+      hostPanelEl.hidden = (mode !== "host");
+      if(mode === "host"){
+        modeHintEl.textContent = "Host mode: Enter PIN to unlock answer keys and quick controls.";
+        hostStatusEl.textContent = state.hostUnlocked ? "Unlocked" : "Locked";
+        jumpRoundBtn.disabled = !state.hostUnlocked;
+        showAllAnswersBtn.disabled = !state.hostUnlocked;
+        hostLogoutBtn.hidden = !state.hostUnlocked;
+        answersEl.classList.remove("show");
+        answersEl.innerHTML = "";
+      }else{
+        modeHintEl.innerHTML = "Type your guess and press <b>Enter</b> or tap <b>Check</b>. Correct answers lock in.";
+      }
+
+      if(!opts.silent) saveState();
+      renderRound();
+    }
+
+    function setRound(next, opts={}){
+      const clamped = Math.max(0, Math.min(ROUNDS.length - 1, next));
+      state.currentRound = clamped;
+      roundSelectEl.value = String(clamped);
+
+      // Ensure timer ticking continues (and UI updates)
+      syncTimerUI();
+
+      if(state.mode === "host"){
+        // keep answer view consistent
+        answersEl.classList.remove("show");
+        answersEl.innerHTML = "";
+      }
+
+      if(!opts.silent) saveState();
+      renderRound();
+    }
+
+    function computeScore(roundIndex){
+      const prog = getRoundProgress(roundIndex);
+      const total = ROUNDS[roundIndex].items.length;
+      let correct = 0;
+      for(let i=0;i<total;i++){
+        if(prog.items[i]?.correct) correct++;
+      }
+      return { correct, total };
+    }
+
+    function computeTotalScore(){
+      let totalCorrect = 0;
+      let totalItems = 0;
+      for(let r=0;r<ROUNDS.length;r++){
+        const { correct, total } = computeScore(r);
+        totalCorrect += correct;
+        totalItems += total;
+      }
+      return { totalCorrect, totalItems };
+    }
+
+    function renderRound(){
+      const roundIndex = state.currentRound;
+      const round = ROUNDS[roundIndex];
+      const prog = getRoundProgress(roundIndex);
+
+      // score
+      const { correct, total } = computeScore(roundIndex);
+      scoreTextEl.textContent = `${correct} / ${total} correct`;
+
+      // global total
+      const tot = computeTotalScore();
+      totalScoreTextEl.textContent = `Total: ${tot.totalCorrect} / ${tot.totalItems}`;
+
+      // timer UI
+      syncTimerUI();
+
+      // build rows
+      rowsEl.innerHTML = "";
+
+      round.items.forEach((item, idx) => {
+        const saved = prog.items[idx] || { input:"", correct:false };
+
+        const row = document.createElement("div");
+        row.className = "row";
+        row.dataset.idx = String(idx);
+
+        // scramble section
+        const left = document.createElement("div");
+        left.className = "scramble";
+
+        const code = document.createElement("code");
+        code.textContent = item.scramble;
+        code.setAttribute("aria-label", `Scrambled word ${idx+1}`);
+
+        const small = document.createElement("div");
+        small.className = "mini";
+        small.textContent = `Word ${idx+1} of ${round.items.length}`;
+
+        left.appendChild(code);
+        left.appendChild(small);
+
+        // answer section
+        const right = document.createElement("div");
+        right.className = "answer";
+
+        const input = document.createElement("input");
+        input.type = "text";
+        input.inputMode = "text";
+        input.autocomplete = "off";
+        input.spellcheck = false;
+        input.placeholder = "Type answer…";
+        input.value = saved.input || "";
+        input.setAttribute("aria-label", `Answer input ${idx+1}`);
+
+        // status indicator
+        const status = document.createElement("div");
+        status.className = "status";
+        status.setAttribute("aria-hidden", "true");
+        status.title = saved.correct ? "Correct" : "";
+
+        if(saved.correct){
+          status.classList.add("good");
+          status.classList.remove("bad");
+          status.innerHTML = '<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M20 6L9 17l-5-5" stroke="#16A34A" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+          input.disabled = true;
+        }else{
+          status.innerHTML = '<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="12" cy="12" r="8" stroke="#9CA3AF" stroke-width="1.4"/></svg>';
+        }
+
+        // check button
+        const checkBtn = document.createElement("button");
+        checkBtn.className = "btn";
+        checkBtn.type = "button";
+        checkBtn.textContent = "Check";
+
+        // wire interactions
+        async function runCheck(fromInput=false){
+          if(saved.correct) return;
+          const val = input.value || "";
+          const norm = normalizeAnswer(val);
+          if(!norm){
+            // shake input to indicate required
+            input.classList.add("shake");
+            setTimeout(() => input.classList.remove("shake"), 380);
+            return;
+          }
+
+          // compare hash
+          const h = await sha256Hex(norm);
+          const expected = ROUND_HASHES[roundIndex].hashes[idx];
+          if(h === expected){
+            // correct
+            saved.input = val;
+            saved.correct = true;
+            prog.items[idx] = saved;
+            input.disabled = true;
+            status.classList.add("good");
+            status.classList.remove("bad");
+            status.innerHTML = '<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M20 6L9 17l-5-5" stroke="#16A34A" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+            row.classList.add("pulse");
+            setTimeout(() => row.classList.remove("pulse"), 700);
+            saveState();
+            renderRound();
+          }else{
+            // wrong
+            status.classList.add("bad");
+            status.classList.remove("good");
+            // brief X icon
+            status.innerHTML = '<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M7 7l10 10M17 7 7 17" stroke="#ef4444" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+            input.classList.add("shake");
+            setTimeout(() => input.classList.remove("shake"), 380);
+          }
+        }
+
+        checkBtn.addEventListener("click", () => runCheck(true));
+        input.addEventListener("keydown", (e) => {
+          if(e.key === "Enter") runCheck(true);
+        });
+        input.addEventListener("input", (e) => {
+          // optimistic store partial input so progress persists
+          saved.input = input.value;
+          prog.items[idx] = saved;
+          saveState();
+        });
+
+        right.appendChild(input);
+        right.appendChild(checkBtn);
+        right.appendChild(status);
+
+        // assemble row content (left + right)
+        // For small screens stack; for wider screens .row grid rules apply
+        row.appendChild(left);
+        row.appendChild(right);
+
+        rowsEl.appendChild(row);
+      });
+    }
+
+    // =========================
+    // HOST FUNCTIONS
+    // =========================
+    function unlockHost(){
+      const pin = (hostPinEl.value || "").trim();
+      if(pin === HOST_PIN){
+        state.hostUnlocked = true;
+        hostStatusEl.textContent = "Unlocked";
+        jumpRoundBtn.disabled = false;
+        showAllAnswersBtn.disabled = false;
+        hostLogoutBtn.hidden = false;
+        answersEl.innerHTML = "";
+        renderHostAnswers({ all: false });
+        answersEl.classList.add("show");
+        saveState();
+      }else{
+        hostStatusEl.textContent = "Locked";
+        hostPinEl.classList.add("shake");
+        setTimeout(() => hostPinEl.classList.remove("shake"), 380);
+        // brief flash
+        hostStatusEl.textContent = "Incorrect PIN";
+        setTimeout(() => {
+          hostStatusEl.textContent = state.hostUnlocked ? "Unlocked" : "Locked";
+        }, 1200);
+      }
+    }
+
+    function renderHostAnswers(opts={ all:false }){
+      // If all: render every round grouped. Otherwise render answers for currentRound.
+      answersEl.innerHTML = "";
+      if(opts.all){
+        for(let r=0;r<ROUNDS.length;r++){
+          const card = document.createElement("div");
+          card.className = "answer-card";
+          const h = document.createElement("h3");
+          h.textContent = `Round ${r+1}: ${ROUNDS[r].title || ""}`;
+          card.appendChild(h);
+          const ul = document.createElement("ul");
+          ul.className = "answer-list";
+          ROUNDS[r].items.forEach(it => {
+            const li = document.createElement("li");
+            li.textContent = it.answer;
+            ul.appendChild(li);
+          });
+          card.appendChild(ul);
+          answersEl.appendChild(card);
+        }
+      }else{
+        const r = state.currentRound;
+        const card = document.createElement("div");
+        card.className = "answer-card";
+        const h = document.createElement("h3");
+        h.textContent = `Round ${r+1}: ${ROUNDS[r].title || ""}`;
+        card.appendChild(h);
+        const ul = document.createElement("ul");
+        ul.className = "answer-list";
+        ROUNDS[r].items.forEach((it, idx) => {
+          const li = document.createElement("li");
+          li.textContent = `${idx+1}. ${it.answer}`;
+          ul.appendChild(li);
+        });
+        card.appendChild(ul);
+        answersEl.appendChild(card);
+      }
+      answersEl.classList.add("show");
+    }
+
+    // =========================
+    // RESET / ADMIN
+    // =========================
+    function resetProgress(){
+      const ok = confirm("Reset all saved progress on this device? This cannot be undone.");
+      if(!ok) return;
+      state.progress = {};
+      // don't change currentRound or mode
+      saveState();
+      renderRound();
+    }
+
+    // Make sure Host panel toggles when switching mode
+    // (already handled in setMode but ensure UI sync)
+    function safeRender(){
+      renderRound();
+      if(state.mode === "host" && state.hostUnlocked) {
+        renderHostAnswers({ all:false });
+        answersEl.classList.add("show");
+      } else {
+        answersEl.classList.remove("show");
+      }
+    }
+
+    // Keep UI reactive to storage changes in other tabs
+    window.addEventListener("storage", (e) => {
+      if(e.key === STORAGE_KEY){
+        state = loadState();
+        safeRender();
+      }
+    });
+
+    // Expose a small helper for host to reveal single answer (optional)
+    // (Not used in UI for now)
+    async function revealAnswer(roundIndex, itemIndex){
+      if(!state.hostUnlocked) return;
+      const it = ROUNDS[roundIndex].items[itemIndex];
+      const prog = getRoundProgress(roundIndex);
+      prog.items[itemIndex] = { input: it.answer, correct: true };
+      saveState();
+      if(roundIndex === state.currentRound) renderRound();
+    }
+
+    // Ensure UI initial render
+    renderRound();
+  </script>
+</body>
+</html>
