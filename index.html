@@ -62,11 +62,7 @@
     }
 
     /* responsive layout: stacked on small, two-column on large */
-    .layout{
-      display:block;
-      gap:18px;
-    }
-
+    .layout{ display:block; gap:18px; }
     @media (min-width: 980px){
       .layout{
         display:grid;
@@ -104,7 +100,7 @@
     .chip{ border:0; background: transparent; padding: 8px 12px; border-radius: 999px; font-weight:800; color: rgba(31,41,55,.78); cursor:pointer; }
     .chip[aria-pressed="true"]{ background: rgba(255,255,255,.98); box-shadow: 0 10px 18px rgba(15,23,42,.09); color: var(--ink); }
 
-    /* Main game card */
+    /* Main card */
     .onesie{ background: rgba(255,255,255,.92); border-radius: 20px; padding: 16px; box-shadow: var(--shadow); border:1px solid rgba(255,255,255,.75); }
     .onesie-inner{ padding: 10px; }
     .onesie-tabs{ display:flex; gap:12px; align-items:center; justify-content:space-between; flex-wrap:wrap; margin-bottom:8px; }
@@ -121,7 +117,23 @@
 
     .grid{ display:grid; gap:12px; }
     .row{ padding:12px; border-radius:12px; background: linear-gradient(180deg, rgba(255,255,255,.98), rgba(250,250,252,.98)); border:1px solid rgba(228,231,236,.9); display:flex; justify-content:space-between; gap:12px; align-items:center; flex-wrap:wrap; }
-    .scramble code{ font-family: ui-monospace, Menlo, "Courier New", monospace; font-weight:900; font-size:14px; padding:8px 12px; border-radius:10px; background: rgba(231,221,255,.35); border:1px dashed rgba(107,114,128,.22); }
+
+    /* Scramble font: larger, higher contrast, more letter spacing for clarity on all screens */
+    .scramble code{
+      font-family: "Baloo 2", system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      font-weight: 800;
+      font-size: 18px;
+      letter-spacing: 2px;
+      padding:10px 14px;
+      border-radius:12px;
+      background: rgba(231,221,255,.35);
+      border:1px solid rgba(107,114,128,.18);
+      color: var(--ink);
+      display:inline-block;
+    }
+    @media (min-width: 980px){
+      .scramble code{ font-size:20px; letter-spacing:2.4px; padding:12px 16px; }
+    }
 
     .answer{ display:flex; gap:10px; align-items:center; flex:1; min-width:160px; }
     input[type="text"]{ flex:1; padding:10px 12px; border-radius:10px; border:1px solid rgba(229,231,235,.95); font-weight:700; font-size:15px; min-height:44px; }
@@ -138,7 +150,7 @@
     .pulse{ animation: pulse .5s ease; }
     @keyframes pulse{ 0%{ box-shadow:0 0 0 0 rgba(22,163,74,.16);} 100%{ box-shadow:0 0 0 14px rgba(22,163,74,0);} }
 
-    /* Host side panel */
+    /* Host panel */
     .side{ display:block; }
     .host-panel{ background: linear-gradient(180deg, rgba(255,255,255,.98), rgba(250,250,252,.98)); border-radius:16px; padding:14px; border:1px solid rgba(229,231,235,.95); box-shadow: 0 12px 30px rgba(15,23,42,.06); min-height:160px; }
     .host-header{ display:flex; align-items:center; justify-content:space-between; gap:8px; margin-bottom:8px; }
@@ -148,9 +160,21 @@
     .answer-card{ border-radius:12px; padding:12px; background: rgba(255,255,255,.96); border:1px solid rgba(229,231,235,.95); }
     .answer-list{ margin:0; padding-left:18px; font-weight:700; color:var(--ink); }
 
-    .host-placeholder{ display:flex; gap:12px; flex-direction:column; align-items:flex-start; color:var(--muted); font-weight:800; padding:12px; }
+    /* Player-friendly side content (shown when host is not signed in) - no host instructions here */
+    .player-side{
+      display:flex;
+      flex-direction:column;
+      gap:10px;
+      align-items:flex-start;
+      padding:12px;
+      border-radius:12px;
+      background: rgba(255,255,255,.92);
+      border:1px solid rgba(229,231,235,.95);
+    }
+    .player-side strong{ font-size:15px; }
+    .player-side p{ margin:0; color:var(--muted); font-weight:700; }
 
-    /* Modals */
+    /* modal styles */
     .modal-backdrop{ position:fixed; inset:0; display:none; align-items:center; justify-content:center; background: rgba(10,10,10,.45); z-index:1200; }
     .modal-backdrop.show{ display:flex; }
     .modal{ width:min(480px,92%); background:#fff; border-radius:12px; padding:18px; box-shadow: 0 22px 60px rgba(2,6,23,.4); border:1px solid rgba(0,0,0,.06); }
@@ -158,16 +182,11 @@
     .modal p{ margin:0 0 12px; color:var(--muted); font-weight:700; }
     .modal .controls{ display:flex; gap:8px; margin-top:12px; justify-content:flex-end; }
 
-    /* welcome modal adjustments */
     .welcome-title{ font-family:"Baloo 2", system-ui, sans-serif; font-size:18px; margin:0 0 8px; }
     .welcome-body{ color:var(--muted); font-weight:700; margin:0 0 12px; }
 
-    /* Desktop tweaks */
-    @media (min-width: 980px){
-      .title{ font-size:24px; }
-      .subtitle{ font-size:14px; }
-      .onesie{ padding:18px; }
-      .onesie-inner{ padding:18px; }
+    @media (min-width:980px){
+      .scramble code{ font-size:20px; letter-spacing:2.4px; padding:12px 16px; }
     }
 
     @media (prefers-reduced-motion: reduce){
@@ -244,7 +263,7 @@
             <div class="content">
               <p class="hint" id="modeHint">Press Start to begin the round timer. Players type guesses and tap Check. Correct answers lock in and increase your score.</p>
 
-              <!-- main rows: for players this shows inputs, for host (when unlocked) it shows read-only answers only -->
+              <!-- rows rendered here -->
               <div id="rows" class="grid" aria-live="polite"></div>
 
               <div class="footer" style="margin-top:14px; font-weight:700; color:var(--muted); display:flex; justify-content:space-between; gap:8px;">
@@ -255,8 +274,9 @@
           </div>
         </section>
 
-        <!-- side column: host panel or placeholder -->
-        <aside class="side" aria-label="Host panel / info">
+        <!-- side column -->
+        <aside class="side" aria-label="Side panel">
+          <!-- Host panel (only visible when host signed in) -->
           <div class="host-panel" id="hostPanel" hidden>
             <div class="host-header">
               <div style="display:flex; flex-direction:column;">
@@ -278,9 +298,15 @@
             <div id="answers" class="answers" aria-label="Answer key"></div>
           </div>
 
-          <div class="host-placeholder" id="hostPlaceholder">
-            <strong style="font-size:15px;">Host view</strong>
-            <p style="max-width:320px;">Hosts can sign in using the Host button in the header (PIN required). Once signed in the host panel will reveal the correct answers for the current round. Host does not get input boxes — they only view scrambles and answers.</p>
+          <!-- Player-side content (when host not signed-in): helpful, player-focused, no host instructions) -->
+          <div class="player-side" id="playerSide">
+            <strong>How to play</strong>
+            <p>Tap Start to begin the round timer. Enter guesses for the scrambled words and tap Check or press Enter.</p>
+            <p>Correct answers lock in. Your progress is saved locally — refresh to continue.</p>
+            <div style="margin-top:8px; display:flex; gap:8px;">
+              <button id="quickStart" class="btn primary">Quick Start</button>
+              <button id="viewRules" class="btn">Rules</button>
+            </div>
           </div>
         </aside>
       </div><!-- layout -->
@@ -307,13 +333,11 @@
   <div id="welcomeModal" class="modal-backdrop" aria-hidden="true">
     <div class="modal" role="dialog" aria-modal="true" aria-labelledby="welcomeTitle">
       <h3 id="welcomeTitle" class="welcome-title">Welcome — Baby Word Scramble</h3>
-      <p class="welcome-body">
-        Instructions (Players):
-      </p>
+      <p class="welcome-body">Quick instructions for players:</p>
       <ul style="margin:0 0 12px 18px; color:var(--muted); font-weight:700;">
         <li>Press Start to begin the timer for this round.</li>
         <li>Type your guess for each scrambled word and press <strong>Check</strong> or Enter.</li>
-        <li>Correct answers lock in and increase your score. Your progress is saved on this device.</li>
+        <li>Correct answers lock in and increase your score.</li>
       </ul>
       <div style="display:flex; gap:8px; justify-content:flex-end;">
         <button id="welcomeClose" class="btn">Close</button>
@@ -322,16 +346,30 @@
     </div>
   </div>
 
-  <script>
-    // =========================
-    // CONFIG
-    // =========================
-    const HOST_PIN = "1979";
-    const STORAGE_KEY = "baby_word_scramble_v4";
+  <!-- Optional rules modal -->
+  <div id="rulesModal" class="modal-backdrop" aria-hidden="true">
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="rulesTitle">
+      <h3 id="rulesTitle">Game Rules</h3>
+      <p style="color:var(--muted); font-weight:700; margin:0 0 12px;">
+        Short rules:
+      </p>
+      <ol style="margin:0 0 12px 18px; color:var(--muted); font-weight:700;">
+        <li>Start the timer to begin the round.</li>
+        <li>Each correct answer counts toward your round score.</li>
+        <li>Your total accumulates across rounds and is shown in the header.</li>
+      </ol>
+      <div style="display:flex; gap:8px; justify-content:flex-end;">
+        <button id="rulesClose" class="btn">Close</button>
+      </div>
+    </div>
+  </div>
 
-    // =========================
-    // DATA (rounds)
-    // =========================
+  <script>
+    // CONFIG
+    const HOST_PIN = "1979";
+    const STORAGE_KEY = "baby_word_scramble_v5";
+
+    // ROUNDS (unchanged)
     const ROUNDS = [
       { title:"Round 1", items:[
         {answer:"bottle", scramble:"OLTBTE"},
@@ -503,15 +541,9 @@
       ]}
     ];
 
-    // =========================
-    // UTIL: normalize + hash
-    // =========================
+    // UTIL functions
     function normalizeAnswer(str){
-      return (str || "")
-        .toLowerCase()
-        .trim()
-        .replace(/\s+/g," ")
-        .replace(/[^a-z0-9 ]/g,"");
+      return (str || "").toLowerCase().trim().replace(/\s+/g," ").replace(/[^a-z0-9 ]/g,"");
     }
     async function sha256Hex(str){
       const enc = new TextEncoder();
@@ -520,71 +552,46 @@
       const bytes = new Uint8Array(digest);
       return [...bytes].map(b=>b.toString(16).padStart(2,"0")).join("");
     }
-
     let ROUND_HASHES = [];
 
-    // =========================
     // STATE + STORAGE
-    // =========================
     const defaultState = () => ({
       currentRound: 0,
-      mode: "player", // 'player' | 'host'
+      mode: "player",
       hostUnlocked: false,
       progress: {},
       seenWelcome: false
     });
-
     function loadState(){
       try{
         const raw = localStorage.getItem(STORAGE_KEY);
         if(!raw) return defaultState();
         const parsed = JSON.parse(raw);
         if(typeof parsed !== "object" || parsed === null) return defaultState();
-        return { ...defaultState(), ...parsed };
-      }catch{
-        return defaultState();
-      }
+        return {...defaultState(), ...parsed};
+      }catch{ return defaultState(); }
     }
-
-    function saveState(){
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
-    }
-
+    function saveState(){ localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); }
     let state = loadState();
 
-    // =========================
     // TIMER
-    // =========================
     let timerInterval = null;
-
     function getRoundProgress(roundIndex){
-      if(!state.progress[roundIndex]){
-        state.progress[roundIndex] = {
-          items: {},
-          timer: { running:false, elapsedMs:0, lastTick: null }
-        };
-      }
+      if(!state.progress[roundIndex]) state.progress[roundIndex] = { items: {}, timer: { running:false, elapsedMs:0, lastTick: null } };
       return state.progress[roundIndex];
     }
-
     function formatTime(ms){
       const total = Math.max(0, Math.floor(ms/1000));
       const m = String(Math.floor(total/60)).padStart(2,"0");
       const s = String(total%60).padStart(2,"0");
       return `${m}:${s}`;
     }
-
     function syncTimerUI(){
       const prog = getRoundProgress(state.currentRound);
       document.getElementById("timerText").textContent = `⏱ ${formatTime(prog.timer.elapsedMs)}`;
       document.getElementById("timerToggleText").textContent = prog.timer.running ? "Pause" : "Start";
     }
-
-    function stopTimerInterval(){
-      if(timerInterval) clearInterval(timerInterval);
-      timerInterval = null;
-    }
-
+    function stopTimerInterval(){ if(timerInterval) clearInterval(timerInterval); timerInterval=null; }
     function startTimerInterval(){
       stopTimerInterval();
       timerInterval = setInterval(() => {
@@ -599,20 +606,17 @@
         saveState();
       }, 250);
     }
-
     function toggleTimer(){
       const prog = getRoundProgress(state.currentRound);
       prog.timer.running = !prog.timer.running;
       prog.timer.lastTick = prog.timer.running ? Date.now() : null;
       syncTimerUI();
       saveState();
-      if(prog.timer.running) startTimerInterval();
-      else stopTimerInterval();
+      if(prog.timer.running) startTimerInterval(); else stopTimerInterval();
     }
-
     function startTimerForCurrentRound(){
       const prog = getRoundProgress(state.currentRound);
-      if (!prog.timer.running){
+      if(!prog.timer.running){
         prog.timer.running = true;
         prog.timer.lastTick = Date.now();
         saveState();
@@ -621,9 +625,7 @@
       }
     }
 
-    // =========================
-    // UI ELEMENTS
-    // =========================
+    // UI elements
     const rowsEl = document.getElementById("rows");
     const roundSelectEl = document.getElementById("roundSelect");
     const scoreTextEl = document.getElementById("scoreText");
@@ -638,7 +640,7 @@
     const hostNextBtn = document.getElementById("hostNext");
     const hostRoundLabel = document.getElementById("hostRoundLabel");
     const hostLogoutBtn = document.getElementById("hostLogout");
-    const hostPlaceholder = document.getElementById("hostPlaceholder");
+    const playerSide = document.getElementById("playerSide");
 
     // modal elements
     const pinModal = document.getElementById("pinModal");
@@ -650,7 +652,12 @@
     const welcomeStart = document.getElementById("welcomeStart");
     const welcomeClose = document.getElementById("welcomeClose");
 
-    // Buttons
+    const rulesModal = document.getElementById("rulesModal");
+    const rulesClose = document.getElementById("rulesClose");
+    const quickStart = document.getElementById("quickStart");
+    const viewRules = document.getElementById("viewRules");
+
+    // Wiring top controls
     document.getElementById("prevRound").addEventListener("click", () => setRound(state.currentRound - 1));
     document.getElementById("nextRound").addEventListener("click", () => setRound(state.currentRound + 1));
     document.getElementById("resetBtn").addEventListener("click", resetProgress);
@@ -658,16 +665,10 @@
 
     playerBtn.addEventListener("click", () => setMode('player'));
     hostBtn.addEventListener("click", () => {
-      // if host already unlocked, switch to host mode
-      if (state.hostUnlocked) {
-        setMode('host');
-        return;
-      }
-      // otherwise open PIN modal
+      if(state.hostUnlocked){ setMode('host'); return; }
       openPinModal();
     });
 
-    // Round selector
     roundSelectEl.addEventListener("change", (e) => setRound(parseInt(e.target.value, 10)));
 
     // Host side controls
@@ -682,79 +683,44 @@
       setMode('player');
     });
 
-    // Host PIN modal handlers
-    function openPinModal(){
-      pinModal.classList.add('show');
-      pinModal.setAttribute('aria-hidden', 'false');
-      modalPinInput.value = '';
-      setTimeout(()=> modalPinInput.focus(), 60);
-    }
-    function closePinModal(){
-      pinModal.classList.remove('show');
-      pinModal.setAttribute('aria-hidden', 'true');
-      modalPinInput.value = '';
-    }
+    // Modal handlers
+    function openPinModal(){ pinModal.classList.add('show'); pinModal.setAttribute('aria-hidden', 'false'); modalPinInput.value=''; setTimeout(()=>modalPinInput.focus(),50); }
+    function closePinModal(){ pinModal.classList.remove('show'); pinModal.setAttribute('aria-hidden', 'true'); modalPinInput.value=''; }
     modalPinCancel.addEventListener('click', closePinModal);
-    modalPinInput.addEventListener('keydown', (e) => {
-      if(e.key === 'Enter') modalPinSubmit.click();
-      if(e.key === 'Escape') closePinModal();
-    });
-    modalPinSubmit.addEventListener('click', () => {
-      const ok = processHostUnlock(modalPinInput.value.trim());
-      if (ok) closePinModal();
-    });
+    modalPinInput.addEventListener('keydown', (e) => { if(e.key === 'Enter') modalPinSubmit.click(); if(e.key === 'Escape') closePinModal(); });
+    modalPinSubmit.addEventListener('click', () => { const ok = processHostUnlock(modalPinInput.value.trim()); if(ok) closePinModal(); });
 
-    // Welcome modal handlers (players)
-    function openWelcomeModal(){
-      welcomeModal.classList.add('show');
-      welcomeModal.setAttribute('aria-hidden', 'false');
-      setTimeout(()=> welcomeStart.focus(), 60);
-    }
-    function closeWelcomeModal(){
-      welcomeModal.classList.remove('show');
-      welcomeModal.setAttribute('aria-hidden', 'true');
-    }
-    welcomeClose.addEventListener('click', () => {
-      state.seenWelcome = true;
-      saveState();
-      closeWelcomeModal();
-    });
-    welcomeStart.addEventListener('click', () => {
-      // mark as seen and start timer for current round
-      state.seenWelcome = true;
-      saveState();
-      closeWelcomeModal();
-      // ensure player mode
-      setMode('player');
-      startTimerForCurrentRound();
-    });
+    // Welcome modal handlers
+    function openWelcomeModal(){ welcomeModal.classList.add('show'); welcomeModal.setAttribute('aria-hidden', 'false'); setTimeout(()=> welcomeStart.focus(), 50); }
+    function closeWelcomeModal(){ welcomeModal.classList.remove('show'); welcomeModal.setAttribute('aria-hidden', 'true'); }
+    welcomeClose.addEventListener('click', () => { state.seenWelcome = true; saveState(); closeWelcomeModal(); });
+    welcomeStart.addEventListener('click', () => { state.seenWelcome = true; saveState(); closeWelcomeModal(); setMode('player'); startTimerForCurrentRound(); });
 
-    // =========================
+    // Rules modal handlers
+    viewRules.addEventListener('click', () => { rulesModal.classList.add('show'); rulesModal.setAttribute('aria-hidden', 'false'); });
+    rulesClose.addEventListener('click', () => { rulesModal.classList.remove('show'); rulesModal.setAttribute('aria-hidden', 'true'); });
+    quickStart.addEventListener('click', () => { if(!state.seenWelcome){ state.seenWelcome = true; saveState(); } setMode('player'); startTimerForCurrentRound(); });
+
     // RENDER / GAME LOGIC
-    // =========================
     async function computeRoundHashes(){
       const all = [];
-      for (let r = 0; r < ROUNDS.length; r++){
+      for(let r=0;r<ROUNDS.length;r++){
         const hashes = [];
-        for (let i = 0; i < ROUNDS[r].items.length; i++){
+        for(let i=0;i<ROUNDS[r].items.length;i++){
           const norm = normalizeAnswer(ROUNDS[r].items[i].answer);
-          const h = await sha256Hex(norm);
-          hashes.push(h);
+          hashes.push(await sha256Hex(norm));
         }
         all.push({ hashes });
       }
       ROUND_HASHES = all;
     }
 
-    function ensureProgressForRound(roundIndex){
-      getRoundProgress(roundIndex);
-      saveState();
-    }
+    function ensureProgressForRound(r){ getRoundProgress(r); saveState(); }
 
-    function setRound(index){
-      if (index < 0) index = 0;
-      if (index >= ROUNDS.length) index = ROUNDS.length - 1;
-      state.currentRound = index;
+    function setRound(i){
+      if(i<0) i=0;
+      if(i>=ROUNDS.length) i=ROUNDS.length-1;
+      state.currentRound = i;
       saveState();
       renderRound();
       renderRoundSelector();
@@ -772,7 +738,7 @@
     }
 
     function resetProgress(){
-      if (!confirm("Reset all saved progress for this device?")) return;
+      if(!confirm('Reset all saved progress for this device?')) return;
       state = defaultState();
       saveState();
       renderRound();
@@ -785,32 +751,25 @@
     function updateScores(){
       const prog = getRoundProgress(state.currentRound);
       const items = ROUNDS[state.currentRound].items.length;
-      let correctThisRound = 0;
-      if (prog && prog.items){
-        for (const k of Object.keys(prog.items)){
-          if (prog.items[k] && prog.items[k].correct) correctThisRound++;
-        }
+      let correctThis = 0;
+      if(prog && prog.items){
+        Object.keys(prog.items).forEach(k => { if(prog.items[k] && prog.items[k].correct) correctThis++; });
       }
-      scoreTextEl.textContent = `${correctThisRound} / ${items} correct`;
+      scoreTextEl.textContent = `${correctThis} / ${items} correct`;
 
-      let totalCorrect = 0;
-      let totalItems = 0;
-      for (let r = 0; r < ROUNDS.length; r++){
+      let totalCorrect = 0, totalItems = 0;
+      for(let r=0;r<ROUNDS.length;r++){
         totalItems += ROUNDS[r].items.length;
         const rp = state.progress[r];
-        if (rp && rp.items){
-          for (const k of Object.keys(rp.items)){
-            if (rp.items[k] && rp.items[k].correct) totalCorrect++;
-          }
-        }
+        if(rp && rp.items) Object.keys(rp.items).forEach(k=>{ if(rp.items[k] && rp.items[k].correct) totalCorrect++; });
       }
       totalScoreTextEl.textContent = `Total: ${totalCorrect} / ${totalItems}`;
     }
 
     function renderRoundSelector(){
-      if (roundSelectEl.children.length !== ROUNDS.length){
-        roundSelectEl.innerHTML = '';
-        for (let i = 0; i < ROUNDS.length; i++){
+      if(roundSelectEl.children.length !== ROUNDS.length){
+        roundSelectEl.innerHTML='';
+        for(let i=0;i<ROUNDS.length;i++){
           const opt = document.createElement('option');
           opt.value = String(i);
           opt.textContent = ROUNDS[i].title || `Round ${i+1}`;
@@ -820,145 +779,61 @@
       roundSelectEl.value = String(state.currentRound);
     }
 
-    function createStatusIcon(type){
-      const wrap = document.createElement('div');
-      wrap.className = 'status';
-      if (type === 'good') wrap.classList.add('good');
-      else if (type === 'bad') wrap.classList.add('bad');
-      return wrap;
-    }
+    function createStatusIcon(){ const wrap = document.createElement('div'); wrap.className='status'; return wrap; }
 
-    // Render a single player row (input + check)
+    // Player row with input
     function renderRowPlayer(rIndex, iIndex, item, progItem){
-      const row = document.createElement('div');
-      row.className = 'row';
+      const row = document.createElement('div'); row.className='row';
+      const left = document.createElement('div'); left.style.display='flex'; left.style.flexDirection='column'; left.style.gap='8px'; left.style.flex='1';
+      const scrambleWrap = document.createElement('div'); scrambleWrap.className='scramble';
+      const code = document.createElement('code'); code.textContent = item.scramble; scrambleWrap.appendChild(code);
 
-      const left = document.createElement('div');
-      left.style.display = 'flex';
-      left.style.flexDirection = 'column';
-      left.style.gap = '8px';
-      left.style.flex = '1';
-
-      const scrambleWrap = document.createElement('div');
-      scrambleWrap.className = 'scramble';
-      const code = document.createElement('code');
-      code.textContent = item.scramble;
-      scrambleWrap.appendChild(code);
-
-      const answerWrap = document.createElement('div');
-      answerWrap.className = 'answer';
-
+      const answerWrap = document.createElement('div'); answerWrap.className='answer';
       const input = document.createElement('input');
-      input.type = 'text';
-      input.autocomplete = 'off';
-      input.spellcheck = false;
-      input.placeholder = 'Type your guess';
+      input.type='text'; input.autocomplete='off'; input.spellcheck=false; input.placeholder='Type your guess';
       input.value = (progItem && progItem.input) ? progItem.input : '';
       input.dataset.itemIndex = String(iIndex);
-      input.style.minWidth = '120px';
 
-      if (progItem && progItem.correct){
-        input.disabled = true;
-        input.value = ROUNDS[rIndex].items[iIndex].answer;
-      }
+      if(progItem && progItem.correct){ input.disabled = true; input.value = ROUNDS[rIndex].items[iIndex].answer; }
 
-      const checkBtn = document.createElement('button');
-      checkBtn.className = 'btn';
-      checkBtn.type = 'button';
-      checkBtn.textContent = 'Check';
-      checkBtn.style.minHeight = '36px';
-      checkBtn.dataset.itemIndex = String(iIndex);
-      if (progItem && progItem.correct) checkBtn.disabled = true;
+      const checkBtn = document.createElement('button'); checkBtn.className='btn'; checkBtn.type='button'; checkBtn.textContent='Check';
+      if(progItem && progItem.correct) checkBtn.disabled = true;
 
-      answerWrap.appendChild(input);
-      answerWrap.appendChild(checkBtn);
+      answerWrap.appendChild(input); answerWrap.appendChild(checkBtn);
+      left.appendChild(scrambleWrap); left.appendChild(answerWrap);
 
-      left.appendChild(scrambleWrap);
-      left.appendChild(answerWrap);
-
-      const right = document.createElement('div');
-      right.style.display = 'flex';
-      right.style.gap = '8px';
-      right.style.alignItems = 'center';
-
-      const status = createStatusIcon();
-      if (progItem && progItem.correct){
-        status.classList.add('good');
-        status.innerHTML = '✓';
-      }
-
+      const right = document.createElement('div'); right.style.display='flex'; right.style.gap='8px'; right.style.alignItems='center';
+      const status = createStatusIcon(); if(progItem && progItem.correct){ status.classList.add('good'); status.innerHTML='✓'; }
       right.appendChild(status);
 
-      row.appendChild(left);
-      row.appendChild(right);
+      row.appendChild(left); row.appendChild(right);
 
-      // Events: check on Enter or button click
-      input.addEventListener('keydown', (ev) => {
-        if (ev.key === 'Enter'){
-          ev.preventDefault();
-          checkAnswer(rIndex, iIndex, input, status, checkBtn);
-        }
-      });
-      checkBtn.addEventListener('click', () => {
-        checkAnswer(rIndex, iIndex, input, status, checkBtn);
-      });
+      input.addEventListener('keydown', (ev) => { if(ev.key === 'Enter'){ ev.preventDefault(); checkAnswer(rIndex, iIndex, input, status, checkBtn); } });
+      checkBtn.addEventListener('click', () => checkAnswer(rIndex, iIndex, input, status, checkBtn));
 
       return row;
     }
 
-    // Render a read-only host row (scramble + plain answer)
+    // Host row: read-only, no input
     function renderRowHost(rIndex, iIndex, item){
-      const row = document.createElement('div');
-      row.className = 'row';
+      const row = document.createElement('div'); row.className='row';
+      const left = document.createElement('div'); left.style.display='flex'; left.style.flexDirection='column'; left.style.gap='8px'; left.style.flex='1';
+      const scrambleWrap = document.createElement('div'); scrambleWrap.className='scramble';
+      const code = document.createElement('code'); code.textContent = item.scramble; scrambleWrap.appendChild(code);
 
-      const left = document.createElement('div');
-      left.style.display = 'flex';
-      left.style.flexDirection = 'column';
-      left.style.gap = '8px';
-      left.style.flex = '1';
+      const answerText = document.createElement('div'); answerText.style.display='flex'; answerText.style.gap='12px'; answerText.style.alignItems='center';
+      const label = document.createElement('div'); label.className='mini'; label.textContent='Answer:';
+      const ans = document.createElement('div'); ans.style.fontWeight='900'; ans.textContent = item.answer;
+      answerText.appendChild(label); answerText.appendChild(ans);
 
-      const scrambleWrap = document.createElement('div');
-      scrambleWrap.className = 'scramble';
-      const code = document.createElement('code');
-      code.textContent = item.scramble;
-      scrambleWrap.appendChild(code);
+      left.appendChild(scrambleWrap); left.appendChild(answerText);
 
-      const answerText = document.createElement('div');
-      answerText.style.display = 'flex';
-      answerText.style.justifyContent = 'flex-start';
-      answerText.style.alignItems = 'center';
-      answerText.style.gap = '12px';
-      const label = document.createElement('div');
-      label.className = 'mini';
-      label.textContent = 'Answer:';
-      const ans = document.createElement('div');
-      ans.style.fontWeight = '900';
-      ans.textContent = item.answer;
-
-      answerText.appendChild(label);
-      answerText.appendChild(ans);
-
-      left.appendChild(scrambleWrap);
-      left.appendChild(answerText);
-
-      const right = document.createElement('div');
-      right.style.display = 'flex';
-      right.style.gap = '8px';
-      right.style.alignItems = 'center';
-
-      // Host sees if players have already had correct entries (optional)
+      const right = document.createElement('div'); right.style.display='flex'; right.style.gap='8px'; right.style.alignItems='center';
       const prog = state.progress[rIndex] && state.progress[rIndex].items && state.progress[rIndex].items[iIndex];
-      const status = createStatusIcon();
-      if (prog && prog.correct){
-        status.classList.add('good');
-        status.innerHTML = '✓';
-      }
-
+      const status = createStatusIcon(); if(prog && prog.correct){ status.classList.add('good'); status.innerHTML='✓'; }
       right.appendChild(status);
 
-      row.appendChild(left);
-      row.appendChild(right);
-
+      row.appendChild(left); row.appendChild(right);
       return row;
     }
 
@@ -969,31 +844,21 @@
       const expectedHash = ROUND_HASHES[roundIndex].hashes[itemIndex];
 
       const rp = getRoundProgress(roundIndex);
-      if (!rp.items[itemIndex]) rp.items[itemIndex] = { input: '', correct: false };
+      if(!rp.items[itemIndex]) rp.items[itemIndex] = { input:'', correct:false };
       rp.items[itemIndex].input = val;
 
-      if (hash === expectedHash && norm.length > 0){
+      if(hash === expectedHash && norm.length > 0){
         rp.items[itemIndex].correct = true;
         saveState();
-        statusEl.classList.add('good');
-        statusEl.innerHTML = '✓';
-        inputEl.disabled = true;
-        checkBtnEl.disabled = true;
-        inputEl.classList.add('pulse');
-        setTimeout(() => inputEl.classList.remove('pulse'), 500);
+        statusEl.classList.add('good'); statusEl.innerHTML='✓';
+        inputEl.disabled = true; checkBtnEl.disabled = true;
+        inputEl.classList.add('pulse'); setTimeout(()=>inputEl.classList.remove('pulse'),500);
         inputEl.value = ROUNDS[roundIndex].items[itemIndex].answer;
       } else {
         rp.items[itemIndex].correct = false;
         saveState();
-        statusEl.classList.remove('good');
-        statusEl.classList.add('bad');
-        statusEl.innerHTML = '✕';
-        inputEl.classList.add('shake');
-        setTimeout(() => {
-          inputEl.classList.remove('shake');
-          statusEl.classList.remove('bad');
-          statusEl.innerHTML = '';
-        }, 550);
+        statusEl.classList.remove('good'); statusEl.classList.add('bad'); statusEl.innerHTML='✕';
+        inputEl.classList.add('shake'); setTimeout(()=>{ inputEl.classList.remove('shake'); statusEl.classList.remove('bad'); statusEl.innerHTML=''; },550);
       }
       updateScores();
     }
@@ -1004,7 +869,6 @@
       updateScores();
       syncTimerUI();
 
-      // mode-aware hint (only player instructions are shown here)
       modeHintEl.textContent = state.mode === 'host'
         ? 'Host mode — viewing answers for the current round. Use Sign out to end host session.'
         : 'Press Start to begin the round timer. Type guesses and tap Check. Correct answers lock in and increase your score.';
@@ -1013,46 +877,33 @@
       const round = ROUNDS[state.currentRound];
       const rp = getRoundProgress(state.currentRound);
 
-      if (state.mode === 'host' && state.hostUnlocked){
-        // Host view: render read-only rows (no inputs)
-        for (let i = 0; i < round.items.length; i++){
-          rowsEl.appendChild(renderRowHost(state.currentRound, i, round.items[i]));
-        }
+      if(state.mode === 'host' && state.hostUnlocked){
+        for(let i=0;i<round.items.length;i++) rowsEl.appendChild(renderRowHost(state.currentRound, i, round.items[i]));
       } else {
-        // Player view with inputs
-        for (let i = 0; i < round.items.length; i++){
+        for(let i=0;i<round.items.length;i++){
           const progItem = rp.items[i] ? rp.items[i] : null;
           rowsEl.appendChild(renderRowPlayer(state.currentRound, i, round.items[i], progItem));
         }
       }
 
-      // Update host panel answers if unlocked
-      if (state.hostUnlocked) renderAnswers();
+      // update host panel if unlocked
+      if(state.hostUnlocked) renderAnswers();
     }
 
     function renderAnswers(){
       answersEl.innerHTML = '';
       const round = ROUNDS[state.currentRound];
-      const card = document.createElement('div');
-      card.className = 'answer-card';
-      const title = document.createElement('h3');
-      title.textContent = round.title || `Round ${state.currentRound + 1}`;
-      card.appendChild(title);
-      const ul = document.createElement('ul');
-      ul.className = 'answer-list';
-      for (let i = 0; i < round.items.length; i++){
-        const li = document.createElement('li');
-        li.textContent = `${round.items[i].scramble} → ${round.items[i].answer}`;
-        ul.appendChild(li);
-      }
-      card.appendChild(ul);
-      answersEl.appendChild(card);
-      hostRoundLabel.textContent = `${round.title || 'Round ' + (state.currentRound + 1)}`;
+      const card = document.createElement('div'); card.className = 'answer-card';
+      const title = document.createElement('h3'); title.textContent = round.title || `Round ${state.currentRound+1}`; card.appendChild(title);
+      const ul = document.createElement('ul'); ul.className = 'answer-list';
+      for(let i=0;i<round.items.length;i++){ const li = document.createElement('li'); li.textContent = `${round.items[i].scramble} → ${round.items[i].answer}`; ul.appendChild(li); }
+      card.appendChild(ul); answersEl.appendChild(card);
+      hostRoundLabel.textContent = `${round.title || 'Round ' + (state.currentRound+1)}`;
     }
 
-    // Host unlock logic
+    // Host unlock logic (modal)
     function processHostUnlock(pin){
-      if ((pin || '') === HOST_PIN){
+      if((pin || '') === HOST_PIN){
         state.hostUnlocked = true;
         state.mode = 'host';
         saveState();
@@ -1060,101 +911,49 @@
         renderRound();
         return true;
       }
-      // wrong pin feedback
-      modalPinInput.classList.add('shake');
-      setTimeout(()=> modalPinInput.classList.remove('shake'), 400);
+      modalPinInput.classList.add('shake'); setTimeout(()=>modalPinInput.classList.remove('shake'),400);
       return false;
     }
 
     function updateHostPanelVisibility(){
-      if (state.mode === 'host' && state.hostUnlocked){
-        hostPanelEl.hidden = false;
-        hostPlaceholder.hidden = true;
-        hostStatusEl.textContent = 'Unlocked';
-        hostLogoutBtn.hidden = false;
-        renderAnswers();
+      if(state.mode === 'host' && state.hostUnlocked){
+        hostPanelEl.hidden = false; playerSide.hidden = true;
+        hostStatusEl.textContent = 'Unlocked'; hostLogoutBtn.hidden = false; renderAnswers();
       } else {
-        hostPanelEl.hidden = true;
-        hostPlaceholder.hidden = false;
-        hostLogoutBtn.hidden = true;
-        hostStatusEl.textContent = 'Locked';
+        hostPanelEl.hidden = true; playerSide.hidden = false;
+        hostLogoutBtn.hidden = true; hostStatusEl.textContent = 'Locked';
       }
       playerBtn.setAttribute('aria-pressed', state.mode === 'player' ? 'true' : 'false');
       hostBtn.setAttribute('aria-pressed', state.mode === 'host' ? 'true' : 'false');
     }
 
-    // compute hashes
-    async function initHashes(){
-      const arr = [];
-      for (let r = 0; r < ROUNDS.length; r++){
-        const hashes = [];
-        for (let i = 0; i < ROUNDS[r].items.length; i++){
-          const norm = normalizeAnswer(ROUNDS[r].items[i].answer);
-          const h = await sha256Hex(norm);
-          hashes.push(h);
-        }
-        arr.push({ hashes });
-      }
-      ROUND_HASHES = arr;
-    }
+    // compute hashes and init
+    async function initHashes(){ const arr = []; for(let r=0;r<ROUNDS.length;r++){ const hashes=[]; for(let i=0;i<ROUNDS[r].items.length;i++){ const norm = normalizeAnswer(ROUNDS[r].items[i].answer); hashes.push(await sha256Hex(norm)); } arr.push({hashes}); } ROUND_HASHES = arr; }
 
-    // render round selector
-    function renderRoundSelector(){
-      if (roundSelectEl.children.length !== ROUNDS.length){
-        roundSelectEl.innerHTML = '';
-        for (let i = 0; i < ROUNDS.length; i++){
-          const opt = document.createElement('option');
-          opt.value = String(i);
-          opt.textContent = ROUNDS[i].title || `Round ${i+1}`;
-          roundSelectEl.appendChild(opt);
-        }
-      }
-      roundSelectEl.value = String(state.currentRound);
-    }
+    function renderRoundSelector(){ if(roundSelectEl.children.length !== ROUNDS.length){ roundSelectEl.innerHTML=''; for(let i=0;i<ROUNDS.length;i++){ const opt = document.createElement('option'); opt.value = String(i); opt.textContent = ROUNDS[i].title || `Round ${i+1}`; roundSelectEl.appendChild(opt); } } roundSelectEl.value = String(state.currentRound); }
 
-    // Initialization
     async function init(){
       await initHashes();
-      for (let r = 0; r < ROUNDS.length; r++) ensureProgressForRound(r);
+      for(let r=0;r<ROUNDS.length;r++) ensureProgressForRound(r);
       renderRoundSelector();
 
-      // Restore host login if persisted
-      if (state.hostUnlocked) state.mode = 'host';
+      // restore persistent host login (if any)
+      if(state.hostUnlocked) state.mode = 'host';
       else state.mode = 'player';
 
       setMode(state.mode);
       setRound(state.currentRound);
 
-      // Show welcome modal to players who haven't seen it yet and are not host
-      if (!state.seenWelcome && !state.hostUnlocked) {
-        openWelcomeModal();
-      }
+      // show welcome to players who haven't seen it and are not host
+      if(!state.seenWelcome && !state.hostUnlocked) openWelcomeModal();
 
-      // restore timer interval if running for current round
+      // restore timer if running
       const prog = getRoundProgress(state.currentRound);
-      if (prog.timer && prog.timer.running){
-        startTimerInterval();
-      }
+      if(prog.timer && prog.timer.running) startTimerInterval();
       syncTimerUI();
     }
 
-    // Wire modal interactions
-    modalPinSubmit.addEventListener('click', () => {
-      const ok = processHostUnlock(modalPinInput.value.trim());
-      if (ok) closePinModal();
-    });
-    modalPinInput.addEventListener('keydown', (e) => {
-      if (e.key === 'Enter') modalPinSubmit.click();
-      if (e.key === 'Escape') closePinModal();
-    });
-
-    // Welcome modal keyboard/accessibility
-    welcomeStart.addEventListener('keydown', (e) => {
-      if (e.key === 'Enter') welcomeStart.click();
-      if (e.key === 'Escape') welcomeClose.click();
-    });
-
-    // Run init when DOM ready
+    // modal submit wiring
     document.addEventListener('DOMContentLoaded', init);
   </script>
 </body>
