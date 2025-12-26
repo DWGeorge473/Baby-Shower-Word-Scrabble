@@ -27,12 +27,15 @@
       --shadow: 0 18px 40px rgba(15,23,42,.10);
       --radius: 22px;
       --tap: 48px;
+      --max-width: 980px;
     }
 
     *{ box-sizing:border-box; }
     html,body{ height:100%; }
     body{
       margin:0;
+      /* Respect device safe area (notch / status bar) */
+      padding-top: env(safe-area-inset-top, 0px);
       font-family: Nunito, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
       color:var(--ink);
       background:
@@ -48,11 +51,12 @@
       display:flex;
       align-items:flex-end; /* mobile thumb reach */
       justify-content:center;
-      padding:18px 14px 22px;
+      /* add safe-area top inset to avoid notch/overlay blocking the header/timer */
+      padding: calc(18px + env(safe-area-inset-top, 0px)) 14px 22px;
     }
 
     .shell{
-      width:min(980px, 100%);
+      width:min(var(--max-width), 100%);
       display:grid;
       grid-template-rows: auto auto 1fr;
       gap:12px;
@@ -330,6 +334,7 @@
       border-radius: 16px;
       border: 1px solid rgba(229,231,235,.95);
       background: rgba(255,255,255,.9);
+      align-items:center;
     }
 
     .scramble{
@@ -389,10 +394,12 @@
     .status.good{
       border-color: rgba(22,163,74,.30);
       background: rgba(22,163,74,.08);
+      color: var(--good);
     }
     .status.bad{
       border-color: rgba(239,68,68,.30);
       background: rgba(239,68,68,.07);
+      color: var(--bad);
     }
 
     .status svg{ width:22px; height:22px; }
@@ -505,7 +512,7 @@
             <!-- baby onesie icon -->
             <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
               <path d="M8 3.5c0 1.38 1.12 2.5 2.5 2.5h3C14.88 6 16 4.88 16 3.5" stroke="#1F2937" stroke-width="1.7" stroke-linecap="round"/>
-              <path d="M7 6.2 5.2 8c-.75.75-.75 1.97 0 2.72L7 12.5V19c0 1.66 1.34 3 3 3h4c1.66 0 3-1.34 3-3v-6.5l1.8-1.78c.75-.75.75-1.97 0-2.72L17 6.2" stroke="#1F2937" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M7 6.2 5.2 8c-.75.75-.75 1.97 0 2.72L7 12.5V19c0 1.66 1.34 3 3 3h4c1.66 0 3-1.34 3-3v-6.5l1.8-1.78c.75-.75.75-1.97 0-2.72L17 6.2" stroke="#1F2937" stroke-width="1.7" stroke-linecap="round"/>
               <path d="M9.2 20.8c.4-1.2 1.5-2 2.8-2s2.4.8 2.8 2" stroke="#1F2937" stroke-width="1.7" stroke-linecap="round"/>
               <path d="M10 14.5h4" stroke="#1F2937" stroke-width="1.7" stroke-linecap="round"/>
             </svg>
@@ -522,7 +529,7 @@
             Player
           </button>
           <button id="hostBtn" class="chip" type="button" aria-pressed="false" title="Host mode">
-            <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M9 12 7 22h10l-2-10" stroke="#1F2937" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/><path d="M7 8a5 5 0 0 1 10 0c0 2.5-2 3.5-2 5H9c0-1.5-2-2.5-2-5Z" stroke="#1F2937" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M9 12 7 22h10l-2-10" stroke="#1F2937" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>
             Host
           </button>
         </div>
@@ -564,7 +571,7 @@
               <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M9 6l6 6-6 6" stroke="#1F2937" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
             </button>
             <button class="btn danger" id="resetBtn" type="button" title="Reset my progress">
-              <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M21 12a9 9 0 1 1-3.2-6.9" stroke="#1F2937" stroke-width="1.7" stroke-linecap="round"/><path d="M21 3v6h-6" stroke="#1F2937" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M21 12a9 9 0 1 1-3.2-6.9" stroke="#1F2937" stroke-width="1.7" stroke-linecap="round"/></svg>
               Reset
             </button>
           </div>
@@ -572,7 +579,7 @@
 
         <div class="onesie-inner">
           <div class="content">
-            <p class="hint" id="modeHint">Type your guess and press <b>Enter</b> or tap <b>Check</b>. Correct answers lock in.</p>
+            <p class="hint" id="modeHint">Type your guess and press <b>Enter</b> or tap <b>Check</b>. Correct answers lock in and increase your score.</p>
             <div id="rows" class="grid" aria-live="polite"></div>
 
             <div id="hostPanel" class="host-panel" hidden>
@@ -844,7 +851,7 @@
 
     // Precompute answer hashes for player validation.
     // We keep plaintext answers in memory for Host mode, but Player mode uses hashes.
-    const ROUND_HASHES = []; // [{ hashes: [..] }]
+    let ROUND_HASHES = []; // [{ hashes: [..] }]
 
     // =========================
     // STATE + STORAGE
@@ -854,7 +861,7 @@
       mode: "player", // 'player' | 'host'
       hostUnlocked: false,
       progress: {
-        // roundIndex: { items: { itemIndex: { input: string, correct: boolean } }, timer: {running:boolean, elapsedMs:number} }
+        // roundIndex: { items: { itemIndex: { input: string, correct: boolean } }, timer: {running:boolean, elapsedMs:number, lastTick: number|null } }
       }
     });
 
@@ -863,7 +870,6 @@
         const raw = localStorage.getItem(STORAGE_KEY);
         if(!raw) return defaultState();
         const parsed = JSON.parse(raw);
-        // minimal validation
         if(typeof parsed !== "object" || parsed === null) return defaultState();
         return {
           ...defaultState(),
@@ -937,6 +943,7 @@
       syncTimerUI();
       saveState();
       if(prog.timer.running) startTimerInterval();
+      else stopTimerInterval();
     }
 
     function resetTimerForRound(roundIndex){
@@ -944,6 +951,7 @@
       prog.timer = { running:false, elapsedMs:0, lastTick: null };
       saveState();
       if(roundIndex === state.currentRound) syncTimerUI();
+      if(roundIndex === state.currentRound) stopTimerInterval();
     }
 
     // =========================
@@ -965,25 +973,11 @@
     const showAllAnswersBtn = document.getElementById("showAllAnswersBtn");
     const hostLogoutBtn = document.getElementById("hostLogout");
 
-    // Buttons
+    // Buttons - wire after declarations
     document.getElementById("prevRound").addEventListener("click", () => setRound(state.currentRound - 1));
     document.getElementById("nextRound").addEventListener("click", () => setRound(state.currentRound + 1));
     document.getElementById("resetBtn").addEventListener("click", resetProgress);
     document.getElementById("timerToggle").addEventListener("click", toggleTimer);
-
-    // Host logout
-    hostLogoutBtn.addEventListener("click", () => {
-      state.hostUnlocked = false;
-      hostPinEl.value = "";
-      hostStatusEl.textContent = "Locked";
-      jumpRoundBtn.disabled = true;
-      showAllAnswersBtn.disabled = true;
-      hostLogoutBtn.hidden = true;
-      answersEl.classList.remove("show");
-      answersEl.innerHTML = "";
-      saveState();
-      renderRound();
-    });
 
     // Mode toggles
     playerBtn.addEventListener("click", () => setMode("player"));
@@ -998,367 +992,448 @@
       if(e.key === "Enter") unlockHost();
     });
 
-    // Host quick actions
+    // Host logout
+    hostLogoutBtn.addEventListener("click", () => {
+      state.hostUnlocked = false;
+      hostPinEl.value = "";
+      hostStatusEl.textContent = "Locked";
+      jumpRoundBtn.disabled = true;
+      showAllAnswersBtn.disabled = true;
+      hostLogoutBtn.hidden = true;
+      answersEl.classList.remove("show");
+      answersEl.innerHTML = "";
+      saveState();
+      renderRound();
+      updateHostPanelVisibility();
+    });
+
+    // Jump to round (host only)
     jumpRoundBtn.addEventListener("click", () => {
       if(!state.hostUnlocked) return;
-      const pick = prompt(`Jump to which round? (1-${ROUNDS.length})`);
-      const n = Number(pick);
-      if(Number.isFinite(n) && n >= 1 && n <= ROUNDS.length){
+      const input = prompt(`Jump to round (1-${ROUNDS.length}):`);
+      if (!input) return;
+      const n = parseInt(input, 10);
+      if (Number.isFinite(n) && n >= 1 && n <= ROUNDS.length) {
         setRound(n - 1);
       }
     });
 
-    showAllAnswersBtn.addEventListener("click", () => {
-      if(!state.hostUnlocked) return;
-      renderHostAnswers({ all: true });
+    // Show/hide answers
+    showAllAnswersBtn.addEventListener('click', () => {
+      if (!state.hostUnlocked) return;
+      const showing = answersEl.classList.toggle('show');
+      showAllAnswersBtn.textContent = showing ? 'Hide Answers' : 'Show All Answers';
     });
+
+    // =========================
+    // RENDER / GAME LOGIC
+    // =========================
+
+    // compute hashes
+    async function computeRoundHashes(){
+      const all = [];
+      for (let r = 0; r < ROUNDS.length; r++){
+        const round = ROUNDS[r];
+        const hashes = [];
+        for (let i = 0; i < round.items.length; i++){
+          const norm = normalizeAnswer(round.items[i].answer);
+          const h = await sha256Hex(norm);
+          hashes.push(h);
+        }
+        all.push({ hashes });
+      }
+      ROUND_HASHES = all;
+    }
+
+    function ensureProgressForRound(roundIndex){
+      getRoundProgress(roundIndex); // creates if missing
+      saveState();
+    }
+
+    function setRound(index){
+      if (index < 0) index = 0;
+      if (index >= ROUNDS.length) index = ROUNDS.length - 1;
+      state.currentRound = index;
+      // stop timer for previous intervals start/stop handled via timer functions
+      saveState();
+      renderRound();
+      renderRoundSelector();
+      syncTimerUI();
+      updateHostPanelVisibility();
+    }
+
+    function setMode(mode){
+      state.mode = mode === 'host' ? 'host' : 'player';
+      // update pressed states
+      playerBtn.setAttribute('aria-pressed', state.mode === 'player' ? 'true' : 'false');
+      hostBtn.setAttribute('aria-pressed', state.mode === 'host' ? 'true' : 'false');
+      // show/hide host panel
+      updateHostPanelVisibility();
+      saveState();
+      renderRound();
+    }
+
+    function resetProgress(){
+      if (!confirm("Reset all saved progress for this device?")) return;
+      state = defaultState();
+      saveState();
+      renderRound();
+      renderRoundSelector();
+      updateScores();
+      updateHostPanelVisibility();
+      syncTimerUI();
+    }
+
+    function updateScores(){
+      // round score
+      const prog = getRoundProgress(state.currentRound);
+      const items = ROUNDS[state.currentRound].items.length;
+      let correctThisRound = 0;
+      if (prog && prog.items){
+        for (const k of Object.keys(prog.items)){
+          if (prog.items[k] && prog.items[k].correct) correctThisRound++;
+        }
+      }
+      scoreTextEl.textContent = `${correctThisRound} / ${items} correct`;
+
+      // total score across rounds
+      let totalCorrect = 0;
+      let totalItems = 0;
+      for (let r = 0; r < ROUNDS.length; r++){
+        totalItems += ROUNDS[r].items.length;
+        const rp = state.progress[r];
+        if (rp && rp.items){
+          for (const k of Object.keys(rp.items)){
+            if (rp.items[k] && rp.items[k].correct) totalCorrect++;
+          }
+        }
+      }
+      totalScoreTextEl.textContent = `Total: ${totalCorrect} / ${totalItems}`;
+    }
+
+    function renderRoundSelector(){
+      // populate select options if empty or mismatched
+      if (roundSelectEl.children.length !== ROUNDS.length){
+        roundSelectEl.innerHTML = '';
+        for (let i = 0; i < ROUNDS.length; i++){
+          const opt = document.createElement('option');
+          opt.value = String(i);
+          opt.textContent = ROUNDS[i].title || `Round ${i+1}`;
+          roundSelectEl.appendChild(opt);
+        }
+      }
+      roundSelectEl.value = String(state.currentRound);
+    }
+
+    function createStatusIcon(type){
+      const wrap = document.createElement('div');
+      wrap.className = 'status';
+      if (type === 'good') wrap.classList.add('good');
+      else if (type === 'bad') wrap.classList.add('bad');
+      return wrap;
+    }
+
+    function renderRow(rIndex, iIndex, item, progItem){
+      const row = document.createElement('div');
+      row.className = 'row';
+      // left column: scramble + input
+      const left = document.createElement('div');
+      left.style.display = 'flex';
+      left.style.flexDirection = 'column';
+      left.style.gap = '8px';
+
+      const scrambleWrap = document.createElement('div');
+      scrambleWrap.className = 'scramble';
+      const code = document.createElement('code');
+      code.textContent = item.scramble;
+      scrambleWrap.appendChild(code);
+
+      // input area
+      const answerWrap = document.createElement('div');
+      answerWrap.className = 'answer';
+      answerWrap.style.width = '100%';
+
+      const input = document.createElement('input');
+      input.type = 'text';
+      input.autocomplete = 'off';
+      input.spellcheck = false;
+      input.placeholder = 'Type your guess';
+      input.value = (progItem && progItem.input) ? progItem.input : '';
+      input.dataset.itemIndex = String(iIndex);
+      input.style.flex = '1 1 auto';
+      input.style.minWidth = '120px';
+
+      // disable input if correct
+      if (progItem && progItem.correct){
+        input.disabled = true;
+      }
+
+      // Check button
+      const checkBtn = document.createElement('button');
+      checkBtn.className = 'btn';
+      checkBtn.type = 'button';
+      checkBtn.textContent = 'Check';
+      checkBtn.style.minHeight = '36px';
+      checkBtn.dataset.itemIndex = String(iIndex);
+      if (progItem && progItem.correct){
+        checkBtn.disabled = true;
+      }
+
+      answerWrap.appendChild(input);
+      answerWrap.appendChild(checkBtn);
+
+      left.appendChild(scrambleWrap);
+      left.appendChild(answerWrap);
+
+      // right column: status / host answer
+      const right = document.createElement('div');
+      right.style.display = 'flex';
+      right.style.gap = '8px';
+      right.style.alignItems = 'center';
+      right.style.justifyContent = 'flex-end';
+
+      const status = createStatusIcon();
+      // if already correct, show good icon
+      if (progItem && progItem.correct){
+        status.classList.add('good');
+        status.innerHTML = '✓';
+      }
+
+      // If host unlocked and mode is host, show plaintext answer
+      const hostAnswer = document.createElement('div');
+      hostAnswer.className = 'mini';
+      if (state.mode === 'host' && state.hostUnlocked){
+        hostAnswer.textContent = item.answer;
+      } else {
+        hostAnswer.textContent = '';
+      }
+
+      right.appendChild(hostAnswer);
+      right.appendChild(status);
+
+      // layout: on wider screens we want two columns (left/right)
+      // But we will append left and right directly into row and rely on CSS grid to rearrange.
+      row.appendChild(left);
+      row.appendChild(right);
+
+      // Event listeners
+      input.addEventListener('keydown', (ev) => {
+        if (ev.key === 'Enter'){
+          ev.preventDefault();
+          checkAnswer(rIndex, iIndex, input, status, checkBtn, hostAnswer);
+        }
+      });
+
+      checkBtn.addEventListener('click', () => {
+        checkAnswer(rIndex, iIndex, input, status, checkBtn, hostAnswer);
+      });
+
+      // Auto-start timer: when typing input (only in player mode)
+      input.addEventListener('input', () => {
+        if (state.mode === 'player'){
+          const prog = getRoundProgress(state.currentRound);
+          if (!prog.timer.running){
+            prog.timer.running = true;
+            prog.timer.lastTick = Date.now();
+            saveState();
+            startTimerInterval();
+            syncTimerUI();
+          }
+        }
+      });
+
+      return row;
+    }
+
+    async function checkAnswer(roundIndex, itemIndex, inputEl, statusEl, checkBtnEl, hostAnswerEl){
+      const val = inputEl.value || '';
+      const norm = normalizeAnswer(val);
+      const hash = await sha256Hex(norm);
+      const expectedHash = ROUND_HASHES[roundIndex].hashes[itemIndex];
+
+      // ensure progress structure
+      const rp = getRoundProgress(roundIndex);
+      if (!rp.items[itemIndex]) rp.items[itemIndex] = { input: '', correct: false };
+
+      rp.items[itemIndex].input = val;
+
+      if (hash === expectedHash && norm.length > 0){
+        // correct
+        rp.items[itemIndex].correct = true;
+        saveState();
+        // update UI: mark good, disable input and button
+        statusEl.classList.add('good');
+        statusEl.innerHTML = '✓';
+        inputEl.disabled = true;
+        checkBtnEl.disabled = true;
+        inputEl.classList.remove('shake');
+        inputEl.classList.add('pulse');
+        setTimeout(() => inputEl.classList.remove('pulse'), 500);
+        // In player mode, show the confirmed answer as the input value (normalized casing kept by original answer)
+        // For clarity to player, set the visible text to the original canonical answer
+        inputEl.value = ROUNDS[roundIndex].items[itemIndex].answer;
+        // update scores
+        updateScores();
+        // If host is unlocked, show plaintext too
+        if (state.hostUnlocked){
+          hostAnswerEl.textContent = ROUNDS[roundIndex].items[itemIndex].answer;
+        }
+      } else {
+        // incorrect
+        rp.items[itemIndex].correct = false;
+        saveState();
+        // feedback
+        statusEl.classList.remove('good');
+        statusEl.classList.add('bad');
+        statusEl.innerHTML = '✕';
+        inputEl.classList.add('shake');
+        setTimeout(() => {
+          inputEl.classList.remove('shake');
+          statusEl.classList.remove('bad');
+          statusEl.innerHTML = '';
+        }, 550);
+      }
+      updateScores();
+    }
+
+    function renderRound(){
+      ensureProgressForRound(state.currentRound);
+      // update headings / select / scores
+      renderRoundSelector();
+      updateScores();
+      syncTimerUI();
+
+      // mode hint
+      modeHintEl.textContent = state.mode === 'host'
+        ? 'Host mode — view answers and control rounds. Enter PIN to unlock host features.'
+        : 'Type your guess and press Enter or tap Check. Correct answers lock in and increase your score.';
+
+      // host panel visibility handled by updateHostPanelVisibility()
+
+      // render rows
+      rowsEl.innerHTML = '';
+      const round = ROUNDS[state.currentRound];
+      const rp = getRoundProgress(state.currentRound);
+      for (let i = 0; i < round.items.length; i++){
+        const progItem = rp.items[i] ? rp.items[i] : null;
+        const row = renderRow(state.currentRound, i, round.items[i], progItem);
+        rowsEl.appendChild(row);
+      }
+    }
+
+    /* --- Auto-start timer when player starts typing into any answer field (global listener) --- */
+    document.addEventListener('input', (e) => {
+      // only in player mode and for text inputs
+      if (state.mode !== 'player') return;
+      const target = e.target;
+      if (!target || target.tagName !== 'INPUT' || target.type !== 'text') return;
+      // only respond if the input belongs to current round (we render only current round inputs)
+      const prog = getRoundProgress(state.currentRound);
+      if (!prog.timer.running){
+        prog.timer.running = true;
+        prog.timer.lastTick = Date.now();
+        saveState();
+        startTimerInterval();
+        syncTimerUI();
+      }
+    });
+
+    /* --- Host: render plain-text answer key for every round --- */
+    function renderAnswers() {
+      answersEl.innerHTML = ''; // clear
+      for (let r = 0; r < ROUNDS.length; r++) {
+        const round = ROUNDS[r];
+        const card = document.createElement('div');
+        card.className = 'answer-card';
+        const title = document.createElement('h3');
+        title.textContent = round.title || `Round ${r + 1}`;
+        card.appendChild(title);
+        const ul = document.createElement('ul');
+        ul.className = 'answer-list';
+        for (let i = 0; i < round.items.length; i++) {
+          const li = document.createElement('li');
+          const item = round.items[i];
+          li.textContent = `${item.scramble} → ${item.answer}`;
+          ul.appendChild(li);
+        }
+        card.appendChild(ul);
+        answersEl.appendChild(card);
+      }
+    }
+
+    /* --- Host unlock function (explicit PIN check) --- */
+    function unlockHost() {
+      const pin = (hostPinEl.value || '').trim();
+      if (pin === HOST_PIN) {
+        state.hostUnlocked = true;
+        hostPinEl.value = '';
+        hostStatusEl.textContent = 'Unlocked';
+        jumpRoundBtn.disabled = false;
+        showAllAnswersBtn.disabled = false;
+        hostLogoutBtn.hidden = false;
+        answersEl.classList.add('show');
+        renderAnswers();
+        saveState();
+        updateHostPanelVisibility();
+        renderRound();
+        return;
+      }
+      // wrong pin feedback
+      hostPinEl.classList.add('shake');
+      setTimeout(() => hostPinEl.classList.remove('shake'), 400);
+      hostStatusEl.textContent = 'Locked';
+    }
+
+    function updateHostPanelVisibility(){
+      if (state.mode === 'host'){
+        hostPanelEl.hidden = false;
+        if (state.hostUnlocked){
+          hostStatusEl.textContent = 'Unlocked';
+          hostLogoutBtn.hidden = false;
+          jumpRoundBtn.disabled = false;
+          showAllAnswersBtn.disabled = false;
+          answersEl.classList.add('show');
+          renderAnswers();
+        } else {
+          hostStatusEl.textContent = 'Locked';
+          hostLogoutBtn.hidden = true;
+          jumpRoundBtn.disabled = true;
+          showAllAnswersBtn.disabled = true;
+          answersEl.classList.remove('show');
+        }
+      } else {
+        hostPanelEl.hidden = true;
+        answersEl.classList.remove('show');
+      }
+    }
 
     // =========================
     // INIT
     // =========================
-    (async function init(){
-      // Build select options
-      roundSelectEl.innerHTML = "";
-      ROUNDS.forEach((r, idx) => {
-        const opt = document.createElement("option");
-        opt.value = String(idx);
-        opt.textContent = `Round ${idx+1}`;
-        roundSelectEl.appendChild(opt);
-      });
+    async function init(){
+      // compute hashes (so validate works)
+      await computeRoundHashes();
 
-      // Precompute hashes (normalized)
-      for(const round of ROUNDS){
-        const hashes = [];
-        for(const it of round.items){
-          hashes.push(await sha256Hex(normalizeAnswer(it.answer)));
-        }
-        ROUND_HASHES.push({ hashes });
+      // ensure progress structure exists
+      for (let r = 0; r < ROUNDS.length; r++) {
+        ensureProgressForRound(r);
       }
 
-      // Ensure currentRound valid
-      if(state.currentRound < 0 || state.currentRound >= ROUNDS.length) state.currentRound = 0;
-      saveState();
+      // set DOM initial states
+      renderRoundSelector();
+      setRound(state.currentRound);
+      setMode(state.mode);
 
-      setMode("player", { silent: true });
-      setRound(state.currentRound, { silent: true });
-      startTimerInterval();
-    })();
-
-    // =========================
-    // MODE / RENDER
-    // =========================
-    function setMode(mode, opts={}){
-      state.mode = mode;
-
-      playerBtn.setAttribute("aria-pressed", mode === "player" ? "true" : "false");
-      hostBtn.setAttribute("aria-pressed", mode === "host" ? "true" : "false");
-
-      hostPanelEl.hidden = (mode !== "host");
-      if(mode === "host"){
-        modeHintEl.textContent = "Host mode: Enter PIN to unlock answer keys and quick controls.";
-        hostStatusEl.textContent = state.hostUnlocked ? "Unlocked" : "Locked";
-        jumpRoundBtn.disabled = !state.hostUnlocked;
-        showAllAnswersBtn.disabled = !state.hostUnlocked;
-        hostLogoutBtn.hidden = !state.hostUnlocked;
-        answersEl.classList.remove("show");
-        answersEl.innerHTML = "";
-      }else{
-        modeHintEl.innerHTML = "Type your guess and press <b>Enter</b> or tap <b>Check</b>. Correct answers lock in.";
+      // restore timer if running
+      const currentProg = getRoundProgress(state.currentRound);
+      if (currentProg.timer && currentProg.timer.running){
+        startTimerInterval();
       }
-
-      if(!opts.silent) saveState();
-      renderRound();
-    }
-
-    function setRound(next, opts={}){
-      const clamped = Math.max(0, Math.min(ROUNDS.length - 1, next));
-      state.currentRound = clamped;
-      roundSelectEl.value = String(clamped);
-
-      // Ensure timer ticking continues (and UI updates)
       syncTimerUI();
-
-      if(state.mode === "host"){
-        // keep answer view consistent
-        answersEl.classList.remove("show");
-        answersEl.innerHTML = "";
-      }
-
-      if(!opts.silent) saveState();
-      renderRound();
     }
 
-    function computeScore(roundIndex){
-      const prog = getRoundProgress(roundIndex);
-      const total = ROUNDS[roundIndex].items.length;
-      let correct = 0;
-      for(let i=0;i<total;i++){
-        if(prog.items[i]?.correct) correct++;
-      }
-      return { correct, total };
-    }
-
-    function computeTotalScore(){
-      let totalCorrect = 0;
-      let totalItems = 0;
-      for(let r=0;r<ROUNDS.length;r++){
-        const { correct, total } = computeScore(r);
-        totalCorrect += correct;
-        totalItems += total;
-      }
-      return { totalCorrect, totalItems };
-    }
-
-    function renderRound(){
-      const roundIndex = state.currentRound;
-      const round = ROUNDS[roundIndex];
-      const prog = getRoundProgress(roundIndex);
-
-      // score
-      const { correct, total } = computeScore(roundIndex);
-      scoreTextEl.textContent = `${correct} / ${total} correct`;
-
-      // global total
-      const tot = computeTotalScore();
-      totalScoreTextEl.textContent = `Total: ${tot.totalCorrect} / ${tot.totalItems}`;
-
-      // timer UI
-      syncTimerUI();
-
-      // build rows
-      rowsEl.innerHTML = "";
-
-      round.items.forEach((item, idx) => {
-        const saved = prog.items[idx] || { input:"", correct:false };
-
-        const row = document.createElement("div");
-        row.className = "row";
-        row.dataset.idx = String(idx);
-
-        // scramble section
-        const left = document.createElement("div");
-        left.className = "scramble";
-
-        const code = document.createElement("code");
-        code.textContent = item.scramble;
-        code.setAttribute("aria-label", `Scrambled word ${idx+1}`);
-
-        const small = document.createElement("div");
-        small.className = "mini";
-        small.textContent = `Word ${idx+1} of ${round.items.length}`;
-
-        left.appendChild(code);
-        left.appendChild(small);
-
-        // answer section
-        const right = document.createElement("div");
-        right.className = "answer";
-
-        const input = document.createElement("input");
-        input.type = "text";
-        input.inputMode = "text";
-        input.autocomplete = "off";
-        input.spellcheck = false;
-        input.placeholder = "Type answer…";
-        input.value = saved.input || "";
-        input.setAttribute("aria-label", `Answer input ${idx+1}`);
-
-        // status indicator
-        const status = document.createElement("div");
-        status.className = "status";
-        status.setAttribute("aria-hidden", "true");
-        status.title = saved.correct ? "Correct" : "";
-
-        if(saved.correct){
-          status.classList.add("good");
-          status.classList.remove("bad");
-          status.innerHTML = '<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M20 6L9 17l-5-5" stroke="#16A34A" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>';
-          input.disabled = true;
-        }else{
-          status.innerHTML = '<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="12" cy="12" r="8" stroke="#9CA3AF" stroke-width="1.4"/></svg>';
-        }
-
-        // check button
-        const checkBtn = document.createElement("button");
-        checkBtn.className = "btn";
-        checkBtn.type = "button";
-        checkBtn.textContent = "Check";
-
-        // wire interactions
-        async function runCheck(fromInput=false){
-          if(saved.correct) return;
-          const val = input.value || "";
-          const norm = normalizeAnswer(val);
-          if(!norm){
-            // shake input to indicate required
-            input.classList.add("shake");
-            setTimeout(() => input.classList.remove("shake"), 380);
-            return;
-          }
-
-          // compare hash
-          const h = await sha256Hex(norm);
-          const expected = ROUND_HASHES[roundIndex].hashes[idx];
-          if(h === expected){
-            // correct
-            saved.input = val;
-            saved.correct = true;
-            prog.items[idx] = saved;
-            input.disabled = true;
-            status.classList.add("good");
-            status.classList.remove("bad");
-            status.innerHTML = '<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M20 6L9 17l-5-5" stroke="#16A34A" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>';
-            row.classList.add("pulse");
-            setTimeout(() => row.classList.remove("pulse"), 700);
-            saveState();
-            renderRound();
-          }else{
-            // wrong
-            status.classList.add("bad");
-            status.classList.remove("good");
-            // brief X icon
-            status.innerHTML = '<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M7 7l10 10M17 7 7 17" stroke="#ef4444" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>';
-            input.classList.add("shake");
-            setTimeout(() => input.classList.remove("shake"), 380);
-          }
-        }
-
-        checkBtn.addEventListener("click", () => runCheck(true));
-        input.addEventListener("keydown", (e) => {
-          if(e.key === "Enter") runCheck(true);
-        });
-        input.addEventListener("input", (e) => {
-          // optimistic store partial input so progress persists
-          saved.input = input.value;
-          prog.items[idx] = saved;
-          saveState();
-        });
-
-        right.appendChild(input);
-        right.appendChild(checkBtn);
-        right.appendChild(status);
-
-        // assemble row content (left + right)
-        // For small screens stack; for wider screens .row grid rules apply
-        row.appendChild(left);
-        row.appendChild(right);
-
-        rowsEl.appendChild(row);
-      });
-    }
-
-    // =========================
-    // HOST FUNCTIONS
-    // =========================
-    function unlockHost(){
-      const pin = (hostPinEl.value || "").trim();
-      if(pin === HOST_PIN){
-        state.hostUnlocked = true;
-        hostStatusEl.textContent = "Unlocked";
-        jumpRoundBtn.disabled = false;
-        showAllAnswersBtn.disabled = false;
-        hostLogoutBtn.hidden = false;
-        answersEl.innerHTML = "";
-        renderHostAnswers({ all: false });
-        answersEl.classList.add("show");
-        saveState();
-      }else{
-        hostStatusEl.textContent = "Locked";
-        hostPinEl.classList.add("shake");
-        setTimeout(() => hostPinEl.classList.remove("shake"), 380);
-        // brief flash
-        hostStatusEl.textContent = "Incorrect PIN";
-        setTimeout(() => {
-          hostStatusEl.textContent = state.hostUnlocked ? "Unlocked" : "Locked";
-        }, 1200);
-      }
-    }
-
-    function renderHostAnswers(opts={ all:false }){
-      // If all: render every round grouped. Otherwise render answers for currentRound.
-      answersEl.innerHTML = "";
-      if(opts.all){
-        for(let r=0;r<ROUNDS.length;r++){
-          const card = document.createElement("div");
-          card.className = "answer-card";
-          const h = document.createElement("h3");
-          h.textContent = `Round ${r+1}: ${ROUNDS[r].title || ""}`;
-          card.appendChild(h);
-          const ul = document.createElement("ul");
-          ul.className = "answer-list";
-          ROUNDS[r].items.forEach(it => {
-            const li = document.createElement("li");
-            li.textContent = it.answer;
-            ul.appendChild(li);
-          });
-          card.appendChild(ul);
-          answersEl.appendChild(card);
-        }
-      }else{
-        const r = state.currentRound;
-        const card = document.createElement("div");
-        card.className = "answer-card";
-        const h = document.createElement("h3");
-        h.textContent = `Round ${r+1}: ${ROUNDS[r].title || ""}`;
-        card.appendChild(h);
-        const ul = document.createElement("ul");
-        ul.className = "answer-list";
-        ROUNDS[r].items.forEach((it, idx) => {
-          const li = document.createElement("li");
-          li.textContent = `${idx+1}. ${it.answer}`;
-          ul.appendChild(li);
-        });
-        card.appendChild(ul);
-        answersEl.appendChild(card);
-      }
-      answersEl.classList.add("show");
-    }
-
-    // =========================
-    // RESET / ADMIN
-    // =========================
-    function resetProgress(){
-      const ok = confirm("Reset all saved progress on this device? This cannot be undone.");
-      if(!ok) return;
-      state.progress = {};
-      // don't change currentRound or mode
-      saveState();
-      renderRound();
-    }
-
-    // Make sure Host panel toggles when switching mode
-    // (already handled in setMode but ensure UI sync)
-    function safeRender(){
-      renderRound();
-      if(state.mode === "host" && state.hostUnlocked) {
-        renderHostAnswers({ all:false });
-        answersEl.classList.add("show");
-      } else {
-        answersEl.classList.remove("show");
-      }
-    }
-
-    // Keep UI reactive to storage changes in other tabs
-    window.addEventListener("storage", (e) => {
-      if(e.key === STORAGE_KEY){
-        state = loadState();
-        safeRender();
-      }
-    });
-
-    // Expose a small helper for host to reveal single answer (optional)
-    // (Not used in UI for now)
-    async function revealAnswer(roundIndex, itemIndex){
-      if(!state.hostUnlocked) return;
-      const it = ROUNDS[roundIndex].items[itemIndex];
-      const prog = getRoundProgress(roundIndex);
-      prog.items[itemIndex] = { input: it.answer, correct: true };
-      saveState();
-      if(roundIndex === state.currentRound) renderRound();
-    }
-
-    // Ensure UI initial render
-    renderRound();
+    // run init on DOM ready
+    document.addEventListener('DOMContentLoaded', init);
   </script>
 </body>
 </html>
