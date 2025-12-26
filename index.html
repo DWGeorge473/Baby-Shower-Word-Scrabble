@@ -261,13 +261,13 @@
             </div>
 
             <div class="content">
-              <p class="hint" id="modeHint">Press Start to begin the round timer. Players type guesses and tap Check. Correct answers lock in and increase your score.</p>
+              <p class="hint" id="modeHint">Players type guesses and tap Check to validate the answer. Each correct answer is 1 point.</p>
 
               <!-- rows rendered here -->
               <div id="rows" class="grid" aria-live="polite"></div>
 
               <div class="footer" style="margin-top:14px; font-weight:700; color:var(--muted); display:flex; justify-content:space-between; gap:8px;">
-                <span>Tip: Progress saves on this device.</span>
+                <span>Tip: Your progress is saved as you go along but will be lost if you refresh your browser window.</span>
                 <span></span>
               </div>
             </div>
@@ -301,8 +301,8 @@
           <!-- Player-side content (when host not signed-in): helpful, player-focused, no host instructions) -->
           <div class="player-side" id="playerSide">
             <strong>How to play</strong>
-            <p>Tap Start to begin the round timer. Enter guesses for the scrambled words and tap Check or press Enter.</p>
-            <p>Correct answers lock in. Your progress is saved locally — refresh to continue.</p>
+            <p>Enter guesses for the scrambled words and tap Check or press Enter to validate.</p>
+            <p> Each correct answers earns 1 point. Your progress is saved locally — refresh to continue.</p>
             <div style="margin-top:8px; display:flex; gap:8px;">
               <button id="quickStart" class="btn primary">Quick Start</button>
               <button id="viewRules" class="btn">Rules</button>
@@ -335,8 +335,8 @@
       <h3 id="welcomeTitle" class="welcome-title">Welcome — Baby Word Scramble</h3>
       <p class="welcome-body">Quick instructions for players:</p>
       <ul style="margin:0 0 12px 18px; color:var(--muted); font-weight:700;">
-        <li>Press Start to begin the timer for this round.</li>
-        <li>Type your guess for each scrambled word and press <strong>Check</strong> or Enter.</li>
+        <li>Type your guess for each scrambled word and press.</li>
+        <li>Your timer will automatically start <strong>Check</strong> or Enter.</li>
         <li>Correct answers lock in and increase your score.</li>
       </ul>
       <div style="display:flex; gap:8px; justify-content:flex-end;">
@@ -354,7 +354,7 @@
         Short rules:
       </p>
       <ol style="margin:0 0 12px 18px; color:var(--muted); font-weight:700;">
-        <li>Start the timer to begin the round.</li>
+        <li>Your timer will automatically start.</li>
         <li>Each correct answer counts toward your round score.</li>
         <li>Your total accumulates across rounds and is shown in the header.</li>
       </ol>
@@ -871,7 +871,7 @@
 
       modeHintEl.textContent = state.mode === 'host'
         ? 'Host mode — viewing answers for the current round. Use Sign out to end host session.'
-        : 'Press Start to begin the round timer. Type guesses and tap Check. Correct answers lock in and increase your score.';
+        : 'Type your guesses and tap Check to validate your answer. If correct you get 1 point that will increase your score. The timer will start automatically but if you If you refresh or reset your page, press Start to begin the round timer again.';
 
       rowsEl.innerHTML = '';
       const round = ROUNDS[state.currentRound];
