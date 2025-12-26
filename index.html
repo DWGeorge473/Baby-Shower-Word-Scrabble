@@ -34,8 +34,7 @@
     html,body{ height:100%; }
     body{
       margin:0;
-      /* Respect device safe area (notch / status bar) */
-      padding-top: env(safe-area-inset-top, 0px);
+      /* Removed safe-area notch padding — instead provide fixed top spacing in the layout so the header always has room */
       font-family: Nunito, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
       color:var(--ink);
       background:
@@ -46,13 +45,14 @@
       overflow-x:hidden;
     }
 
+    /* Top padding ensures header isn't blocked on phones (including iPhones with notches).
+       Using a fixed padding is simpler and consistent across browsers. */
     .app{
       min-height:100%;
       display:flex;
       align-items:flex-end; /* mobile thumb reach */
       justify-content:center;
-      /* add safe-area top inset to avoid notch/overlay blocking the header/timer */
-      padding: calc(18px + env(safe-area-inset-top, 0px)) 14px 22px;
+      padding: 28px 14px 22px;
     }
 
     .shell{
@@ -66,7 +66,7 @@
     .top-banner{
       position:relative;
       width:100%;
-      height:84px;
+      height:100px; /* give extra top space so content like timer never gets blocked */
       border-radius: 22px;
       background:
         linear-gradient(90deg, rgba(255,182,213,.95), rgba(191,232,255,.95), rgba(200,247,231,.95));
@@ -75,7 +75,7 @@
       display:flex;
       align-items:center;
       justify-content:space-between;
-      padding:16px 16px;
+      padding:20px 16px;
       border:1px solid rgba(255,255,255,.65);
     }
     .top-banner::before,
@@ -100,8 +100,8 @@
       z-index:1;
     }
     .brand-badge{
-      width:44px;
-      height:44px;
+      width:52px;
+      height:52px;
       border-radius:16px;
       background: rgba(255,255,255,.75);
       display:grid;
@@ -109,7 +109,7 @@
       border:1px solid rgba(255,255,255,.7);
       box-shadow: 0 12px 18px rgba(15,23,42,.08);
     }
-    .brand-badge svg{ width:30px; height:30px; }
+    .brand-badge svg{ width:34px; height:34px; }
 
     .title-wrap{
       display:flex;
@@ -141,11 +141,6 @@
       border:1px solid rgba(255,255,255,.65);
       border-radius: 999px;
     }
-    .seg{
-      display:flex;
-      gap:6px;
-      align-items:center;
-    }
 
     .chip{
       border:0;
@@ -165,7 +160,6 @@
       box-shadow: 0 10px 18px rgba(15,23,42,.10);
       color: var(--ink);
     }
-    .chip svg{ width:18px; height:18px; opacity:.9; }
 
     /* Onesie card */
     .onesie{
@@ -181,7 +175,6 @@
       padding: 16px;
     }
 
-    /* Onesie silhouette accents */
     .onesie::before{
       content:"";
       position:absolute;
@@ -194,18 +187,6 @@
       background: rgba(255,255,255,.88);
       border:1px solid rgba(229,231,235,.9);
       box-shadow: 0 12px 20px rgba(15,23,42,.06);
-    }
-    .onesie::after{
-      content:"";
-      position:absolute;
-      left:0; right:0; bottom:-1px;
-      height: 46px;
-      background:
-        radial-gradient(24px 24px at 30% 22%, rgba(255,182,213,.55) 45%, transparent 47%),
-        radial-gradient(24px 24px at 50% 22%, rgba(191,232,255,.55) 45%, transparent 47%),
-        radial-gradient(24px 24px at 70% 22%, rgba(200,247,231,.55) 45%, transparent 47%),
-        linear-gradient(0deg, rgba(231,221,255,.30), transparent 78%);
-      border-top: 1px solid rgba(229,231,235,.9);
     }
 
     .onesie-tabs{
@@ -308,7 +289,6 @@
       background: rgba(239,68,68,.08);
       border-color: rgba(239,68,68,.25);
     }
-    .btn svg{ width:18px; height:18px; }
 
     .content{
       padding: 10px 16px 18px;
@@ -402,8 +382,6 @@
       color: var(--bad);
     }
 
-    .status svg{ width:22px; height:22px; }
-
     .mini{
       font-size: 12.5px;
       color: var(--muted);
@@ -420,7 +398,6 @@
       100%{ transform: translateX(0); }
     }
 
-    /* Subtle highlight when marking correct */
     .pulse{ animation: pulse .5s ease; }
     @keyframes pulse{
       0%{ box-shadow: 0 0 0 0 rgba(22,163,74,.18); }
@@ -482,10 +459,33 @@
       font-size: 12.5px;
     }
 
+    /* Modal for host PIN entry */
+    .modal-backdrop{
+      position:fixed;
+      inset:0;
+      display:none;
+      align-items:center;
+      justify-content:center;
+      background: rgba(10,10,10,.45);
+      z-index:1200;
+    }
+    .modal-backdrop.show{ display:flex; }
+    .modal{
+      width:min(420px, 92%);
+      background:#fff;
+      border-radius:12px;
+      padding:18px;
+      box-shadow: 0 22px 60px rgba(2,6,23,.4);
+      border:1px solid rgba(0,0,0,.06);
+    }
+    .modal h3{ margin:0 0 8px; font-size:18px; }
+    .modal p{ margin:0 0 12px; color:var(--muted); font-weight:700; }
+    .modal .controls{ display:flex; gap:8px; margin-top:12px; justify-content:flex-end; }
+
     /* Desktop layout upgrades */
     @media (min-width: 780px){
-      .app{ align-items:center; padding:24px 18px 30px; }
-      .top-banner{ height: 92px; }
+      .app{ align-items:center; padding:28px 18px 30px; }
+      .top-banner{ height: 100px; }
       .row{
         grid-template-columns: 1fr 1.6fr;
         align-items:center;
@@ -507,7 +507,7 @@
     <div class="shell">
 
       <header class="top-banner" aria-label="Baby Word Scramble header">
-        <div class="brand">
+        <div class="brand" style="gap:14px;">
           <div class="brand-badge" aria-hidden="true">
             <!-- baby onesie icon -->
             <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -528,7 +528,7 @@
             <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 12a4.5 4.5 0 1 0 0-9 4.5 4.5 0 0 0 0 9Zm8 9a8 8 0 1 0-16 0" stroke="#1F2937" stroke-width="1.7" stroke-linecap="round"/></svg>
             Player
           </button>
-          <button id="hostBtn" class="chip" type="button" aria-pressed="false" title="Host mode">
+          <button id="hostBtn" class="chip" type="button" aria-pressed="false" title="Host mode (requires PIN)">
             <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M9 12 7 22h10l-2-10" stroke="#1F2937" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>
             Host
           </button>
@@ -610,19 +610,31 @@
     </div>
   </main>
 
+  <!-- Host PIN modal -->
+  <div id="pinModal" class="modal-backdrop" aria-hidden="true">
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="pinTitle">
+      <h3 id="pinTitle">Host Login</h3>
+      <p>Enter the host PIN to reveal answers and host controls.</p>
+      <div style="display:flex;gap:8px;align-items:center;">
+        <input id="modalPinInput" type="password" inputmode="numeric" pattern="[0-9]*" placeholder="PIN" style="flex:1;padding:10px 12px;border-radius:8px;border:1px solid var(--line);font-weight:800;" />
+        <button id="modalPinSubmit" class="btn primary">Unlock</button>
+      </div>
+      <div class="controls" style="margin-top:12px;">
+        <button id="modalPinCancel" class="btn">Cancel</button>
+      </div>
+    </div>
+  </div>
+
   <script>
     // =========================
     // CONFIG
     // =========================
     const HOST_PIN = "1979"; // ← change me (Host/Admin PIN)
-    const STORAGE_KEY = "baby_word_scramble_v1";
+    const STORAGE_KEY = "baby_word_scramble_v2"; // bump version to avoid clashes
 
     // =========================
     // DATA (12 rounds × 12 entries)
     // =========================
-    // NOTE: We keep plaintext answers here to allow Host mode answer key.
-    // Player mode never inserts these answers into the DOM.
-    // Validation uses SHA-256 hashes.
     const ROUNDS = [
       {
         title: "Round 1",
@@ -849,9 +861,8 @@
       return [...bytes].map(b => b.toString(16).padStart(2, "0")).join("");
     }
 
-    // Precompute answer hashes for player validation.
-    // We keep plaintext answers in memory for Host mode, but Player mode uses hashes.
-    let ROUND_HASHES = []; // [{ hashes: [..] }]
+    // Precompute answer hashes
+    let ROUND_HASHES = [];
 
     // =========================
     // STATE + STORAGE
@@ -860,9 +871,7 @@
       currentRound: 0,
       mode: "player", // 'player' | 'host'
       hostUnlocked: false,
-      progress: {
-        // roundIndex: { items: { itemIndex: { input: string, correct: boolean } }, timer: {running:boolean, elapsedMs:number, lastTick: number|null } }
-      }
+      progress: {}
     });
 
     function loadState(){
@@ -871,11 +880,10 @@
         if(!raw) return defaultState();
         const parsed = JSON.parse(raw);
         if(typeof parsed !== "object" || parsed === null) return defaultState();
+        // IMPORTANT: Do NOT force hostUnlocked to false on load — keep login persistent until host signs out
         return {
           ...defaultState(),
-          ...parsed,
-          hostUnlocked: false, // always relock on refresh for safety
-          mode: "player"       // default back to player on refresh
+          ...parsed
         };
       }catch{
         return defaultState();
@@ -950,8 +958,10 @@
       const prog = getRoundProgress(roundIndex);
       prog.timer = { running:false, elapsedMs:0, lastTick: null };
       saveState();
-      if(roundIndex === state.currentRound) syncTimerUI();
-      if(roundIndex === state.currentRound) stopTimerInterval();
+      if(roundIndex === state.currentRound) {
+        syncTimerUI();
+        stopTimerInterval();
+      }
     }
 
     // =========================
@@ -973,6 +983,12 @@
     const showAllAnswersBtn = document.getElementById("showAllAnswersBtn");
     const hostLogoutBtn = document.getElementById("hostLogout");
 
+    // Modal elements
+    const pinModal = document.getElementById("pinModal");
+    const modalPinInput = document.getElementById("modalPinInput");
+    const modalPinSubmit = document.getElementById("modalPinSubmit");
+    const modalPinCancel = document.getElementById("modalPinCancel");
+
     // Buttons - wire after declarations
     document.getElementById("prevRound").addEventListener("click", () => setRound(state.currentRound - 1));
     document.getElementById("nextRound").addEventListener("click", () => setRound(state.currentRound + 1));
@@ -980,22 +996,45 @@
     document.getElementById("timerToggle").addEventListener("click", toggleTimer);
 
     // Mode toggles
-    playerBtn.addEventListener("click", () => setMode("player"));
-    hostBtn.addEventListener("click", () => setMode("host"));
+    playerBtn.addEventListener("click", () => {
+      setMode('player');
+    });
+
+    hostBtn.addEventListener("click", () => {
+      // Do NOT show host UI immediately. If already unlocked, switch to host mode.
+      if (state.hostUnlocked) {
+        setMode('host');
+        return;
+      }
+      // otherwise open PIN modal
+      openPinModal();
+    });
 
     // Round selector
     roundSelectEl.addEventListener("change", (e) => setRound(parseInt(e.target.value, 10)));
 
-    // Host unlock
-    hostUnlockEl.addEventListener("click", unlockHost);
+    // Host unlock (in-panel, in case host types PIN there)
+    hostUnlockEl.addEventListener("click", () => {
+      const pin = (hostPinEl.value || '').trim();
+      if (pin.length === 0) {
+        hostPinEl.classList.add('shake');
+        setTimeout(() => hostPinEl.classList.remove('shake'), 400);
+        return;
+      }
+      processHostUnlock(pin);
+      hostPinEl.value = '';
+    });
     hostPinEl.addEventListener("keydown", (e) => {
-      if(e.key === "Enter") unlockHost();
+      if(e.key === "Enter") {
+        hostUnlockEl.click();
+      }
     });
 
     // Host logout
     hostLogoutBtn.addEventListener("click", () => {
+      // sign out host, keep mode to player
       state.hostUnlocked = false;
-      hostPinEl.value = "";
+      state.mode = 'player';
       hostStatusEl.textContent = "Locked";
       jumpRoundBtn.disabled = true;
       showAllAnswersBtn.disabled = true;
@@ -1003,8 +1042,9 @@
       answersEl.classList.remove("show");
       answersEl.innerHTML = "";
       saveState();
-      renderRound();
       updateHostPanelVisibility();
+      renderRound();
+      setMode('player');
     });
 
     // Jump to round (host only)
@@ -1018,18 +1058,39 @@
       }
     });
 
-    // Show/hide answers
+    // Show/hide answers (host only)
     showAllAnswersBtn.addEventListener('click', () => {
       if (!state.hostUnlocked) return;
       const showing = answersEl.classList.toggle('show');
       showAllAnswersBtn.textContent = showing ? 'Hide Answers' : 'Show All Answers';
     });
 
+    // Modal handlers
+    function openPinModal(){
+      pinModal.classList.add('show');
+      pinModal.setAttribute('aria-hidden', 'false');
+      modalPinInput.value = '';
+      modalPinInput.focus();
+    }
+    function closePinModal(){
+      pinModal.classList.remove('show');
+      pinModal.setAttribute('aria-hidden', 'true');
+      modalPinInput.value = '';
+    }
+    modalPinCancel.addEventListener('click', closePinModal);
+    modalPinInput.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') modalPinSubmit.click();
+      if (e.key === 'Escape') closePinModal();
+    });
+    modalPinSubmit.addEventListener('click', () => {
+      processHostUnlock(modalPinInput.value.trim());
+      closePinModal();
+    });
+
     // =========================
     // RENDER / GAME LOGIC
     // =========================
 
-    // compute hashes
     async function computeRoundHashes(){
       const all = [];
       for (let r = 0; r < ROUNDS.length; r++){
@@ -1046,7 +1107,7 @@
     }
 
     function ensureProgressForRound(roundIndex){
-      getRoundProgress(roundIndex); // creates if missing
+      getRoundProgress(roundIndex);
       saveState();
     }
 
@@ -1054,7 +1115,6 @@
       if (index < 0) index = 0;
       if (index >= ROUNDS.length) index = ROUNDS.length - 1;
       state.currentRound = index;
-      // stop timer for previous intervals start/stop handled via timer functions
       saveState();
       renderRound();
       renderRoundSelector();
@@ -1067,7 +1127,6 @@
       // update pressed states
       playerBtn.setAttribute('aria-pressed', state.mode === 'player' ? 'true' : 'false');
       hostBtn.setAttribute('aria-pressed', state.mode === 'host' ? 'true' : 'false');
-      // show/hide host panel
       updateHostPanelVisibility();
       saveState();
       renderRound();
@@ -1112,7 +1171,6 @@
     }
 
     function renderRoundSelector(){
-      // populate select options if empty or mismatched
       if (roundSelectEl.children.length !== ROUNDS.length){
         roundSelectEl.innerHTML = '';
         for (let i = 0; i < ROUNDS.length; i++){
@@ -1136,7 +1194,7 @@
     function renderRow(rIndex, iIndex, item, progItem){
       const row = document.createElement('div');
       row.className = 'row';
-      // left column: scramble + input
+
       const left = document.createElement('div');
       left.style.display = 'flex';
       left.style.flexDirection = 'column';
@@ -1148,7 +1206,6 @@
       code.textContent = item.scramble;
       scrambleWrap.appendChild(code);
 
-      // input area
       const answerWrap = document.createElement('div');
       answerWrap.className = 'answer';
       answerWrap.style.width = '100%';
@@ -1163,12 +1220,11 @@
       input.style.flex = '1 1 auto';
       input.style.minWidth = '120px';
 
-      // disable input if correct
       if (progItem && progItem.correct){
         input.disabled = true;
+        input.value = ROUNDS[rIndex].items[iIndex].answer;
       }
 
-      // Check button
       const checkBtn = document.createElement('button');
       checkBtn.className = 'btn';
       checkBtn.type = 'button';
@@ -1185,7 +1241,6 @@
       left.appendChild(scrambleWrap);
       left.appendChild(answerWrap);
 
-      // right column: status / host answer
       const right = document.createElement('div');
       right.style.display = 'flex';
       right.style.gap = '8px';
@@ -1193,13 +1248,11 @@
       right.style.justifyContent = 'flex-end';
 
       const status = createStatusIcon();
-      // if already correct, show good icon
       if (progItem && progItem.correct){
         status.classList.add('good');
         status.innerHTML = '✓';
       }
 
-      // If host unlocked and mode is host, show plaintext answer
       const hostAnswer = document.createElement('div');
       hostAnswer.className = 'mini';
       if (state.mode === 'host' && state.hostUnlocked){
@@ -1211,12 +1264,10 @@
       right.appendChild(hostAnswer);
       right.appendChild(status);
 
-      // layout: on wider screens we want two columns (left/right)
-      // But we will append left and right directly into row and rely on CSS grid to rearrange.
       row.appendChild(left);
       row.appendChild(right);
 
-      // Event listeners
+      // Events
       input.addEventListener('keydown', (ev) => {
         if (ev.key === 'Enter'){
           ev.preventDefault();
@@ -1228,20 +1279,6 @@
         checkAnswer(rIndex, iIndex, input, status, checkBtn, hostAnswer);
       });
 
-      // Auto-start timer: when typing input (only in player mode)
-      input.addEventListener('input', () => {
-        if (state.mode === 'player'){
-          const prog = getRoundProgress(state.currentRound);
-          if (!prog.timer.running){
-            prog.timer.running = true;
-            prog.timer.lastTick = Date.now();
-            saveState();
-            startTimerInterval();
-            syncTimerUI();
-          }
-        }
-      });
-
       return row;
     }
 
@@ -1251,38 +1288,28 @@
       const hash = await sha256Hex(norm);
       const expectedHash = ROUND_HASHES[roundIndex].hashes[itemIndex];
 
-      // ensure progress structure
       const rp = getRoundProgress(roundIndex);
       if (!rp.items[itemIndex]) rp.items[itemIndex] = { input: '', correct: false };
 
       rp.items[itemIndex].input = val;
 
       if (hash === expectedHash && norm.length > 0){
-        // correct
         rp.items[itemIndex].correct = true;
         saveState();
-        // update UI: mark good, disable input and button
         statusEl.classList.add('good');
         statusEl.innerHTML = '✓';
         inputEl.disabled = true;
         checkBtnEl.disabled = true;
-        inputEl.classList.remove('shake');
         inputEl.classList.add('pulse');
         setTimeout(() => inputEl.classList.remove('pulse'), 500);
-        // In player mode, show the confirmed answer as the input value (normalized casing kept by original answer)
-        // For clarity to player, set the visible text to the original canonical answer
         inputEl.value = ROUNDS[roundIndex].items[itemIndex].answer;
-        // update scores
         updateScores();
-        // If host is unlocked, show plaintext too
         if (state.hostUnlocked){
           hostAnswerEl.textContent = ROUNDS[roundIndex].items[itemIndex].answer;
         }
       } else {
-        // incorrect
         rp.items[itemIndex].correct = false;
         saveState();
-        // feedback
         statusEl.classList.remove('good');
         statusEl.classList.add('bad');
         statusEl.innerHTML = '✕';
@@ -1298,19 +1325,14 @@
 
     function renderRound(){
       ensureProgressForRound(state.currentRound);
-      // update headings / select / scores
       renderRoundSelector();
       updateScores();
       syncTimerUI();
 
-      // mode hint
       modeHintEl.textContent = state.mode === 'host'
-        ? 'Host mode — view answers and control rounds. Enter PIN to unlock host features.'
+        ? 'Host mode — view answers and control rounds. Use Host Logout to sign out.'
         : 'Type your guess and press Enter or tap Check. Correct answers lock in and increase your score.';
 
-      // host panel visibility handled by updateHostPanelVisibility()
-
-      // render rows
       rowsEl.innerHTML = '';
       const round = ROUNDS[state.currentRound];
       const rp = getRoundProgress(state.currentRound);
@@ -1321,52 +1343,35 @@
       }
     }
 
-    /* --- Auto-start timer when player starts typing into any answer field (global listener) --- */
-    document.addEventListener('input', (e) => {
-      // only in player mode and for text inputs
-      if (state.mode !== 'player') return;
-      const target = e.target;
-      if (!target || target.tagName !== 'INPUT' || target.type !== 'text') return;
-      // only respond if the input belongs to current round (we render only current round inputs)
-      const prog = getRoundProgress(state.currentRound);
-      if (!prog.timer.running){
-        prog.timer.running = true;
-        prog.timer.lastTick = Date.now();
-        saveState();
-        startTimerInterval();
-        syncTimerUI();
-      }
-    });
-
-    /* --- Host: render plain-text answer key for every round --- */
+    /* --- Host answer rendering for the side panel --- */
     function renderAnswers() {
-      answersEl.innerHTML = ''; // clear
-      for (let r = 0; r < ROUNDS.length; r++) {
-        const round = ROUNDS[r];
-        const card = document.createElement('div');
-        card.className = 'answer-card';
-        const title = document.createElement('h3');
-        title.textContent = round.title || `Round ${r + 1}`;
-        card.appendChild(title);
-        const ul = document.createElement('ul');
-        ul.className = 'answer-list';
-        for (let i = 0; i < round.items.length; i++) {
-          const li = document.createElement('li');
-          const item = round.items[i];
-          li.textContent = `${item.scramble} → ${item.answer}`;
-          ul.appendChild(li);
-        }
-        card.appendChild(ul);
-        answersEl.appendChild(card);
+      answersEl.innerHTML = '';
+      for (let i = 0; i < ROUNDS[state.currentRound].items.length; i++){
+        // For host convenience, show answers for current round in the panel too
       }
+      // We'll build one card for the current round (host cycles rounds with nav buttons)
+      const round = ROUNDS[state.currentRound];
+      const card = document.createElement('div');
+      card.className = 'answer-card';
+      const title = document.createElement('h3');
+      title.textContent = round.title || `Round ${state.currentRound + 1}`;
+      card.appendChild(title);
+      const ul = document.createElement('ul');
+      ul.className = 'answer-list';
+      for (let i = 0; i < round.items.length; i++){
+        const li = document.createElement('li');
+        li.textContent = `${round.items[i].scramble} → ${round.items[i].answer}`;
+        ul.appendChild(li);
+      }
+      card.appendChild(ul);
+      answersEl.appendChild(card);
     }
 
-    /* --- Host unlock function (explicit PIN check) --- */
-    function unlockHost() {
-      const pin = (hostPinEl.value || '').trim();
-      if (pin === HOST_PIN) {
+    /* --- Host unlock logic used by modal and panel --- */
+    function processHostUnlock(pin){
+      if ((pin || '') === HOST_PIN){
         state.hostUnlocked = true;
-        hostPinEl.value = '';
+        state.mode = 'host';
         hostStatusEl.textContent = 'Unlocked';
         jumpRoundBtn.disabled = false;
         showAllAnswersBtn.disabled = false;
@@ -1376,32 +1381,31 @@
         saveState();
         updateHostPanelVisibility();
         renderRound();
-        return;
+        // ensure host mode selected
+        playerBtn.setAttribute('aria-pressed', 'false');
+        hostBtn.setAttribute('aria-pressed', 'true');
+        return true;
       }
-      // wrong pin feedback
+      // wrong pin feedback (shake both inputs if visible)
+      modalPinInput.classList.add('shake');
+      setTimeout(() => modalPinInput.classList.remove('shake'), 400);
       hostPinEl.classList.add('shake');
       setTimeout(() => hostPinEl.classList.remove('shake'), 400);
       hostStatusEl.textContent = 'Locked';
+      return false;
     }
 
     function updateHostPanelVisibility(){
-      if (state.mode === 'host'){
+      if (state.mode === 'host' && state.hostUnlocked){
         hostPanelEl.hidden = false;
-        if (state.hostUnlocked){
-          hostStatusEl.textContent = 'Unlocked';
-          hostLogoutBtn.hidden = false;
-          jumpRoundBtn.disabled = false;
-          showAllAnswersBtn.disabled = false;
-          answersEl.classList.add('show');
-          renderAnswers();
-        } else {
-          hostStatusEl.textContent = 'Locked';
-          hostLogoutBtn.hidden = true;
-          jumpRoundBtn.disabled = true;
-          showAllAnswersBtn.disabled = true;
-          answersEl.classList.remove('show');
-        }
+        hostStatusEl.textContent = 'Unlocked';
+        hostLogoutBtn.hidden = false;
+        jumpRoundBtn.disabled = false;
+        showAllAnswersBtn.disabled = false;
+        answersEl.classList.add('show');
+        renderAnswers();
       } else {
+        // host panel hidden by default until unlocked and host mode
         hostPanelEl.hidden = true;
         answersEl.classList.remove('show');
       }
@@ -1411,19 +1415,17 @@
     // INIT
     // =========================
     async function init(){
-      // compute hashes (so validate works)
       await computeRoundHashes();
-
-      // ensure progress structure exists
-      for (let r = 0; r < ROUNDS.length; r++) {
-        ensureProgressForRound(r);
-      }
-
-      // set DOM initial states
+      for (let r = 0; r < ROUNDS.length; r++) ensureProgressForRound(r);
       renderRoundSelector();
-      setRound(state.currentRound);
+      // If host was unlocked previously, restore host mode visibility (host stays logged in until sign out)
+      if (state.hostUnlocked){
+        state.mode = 'host';
+      } else {
+        state.mode = 'player';
+      }
       setMode(state.mode);
-
+      setRound(state.currentRound);
       // restore timer if running
       const currentProg = getRoundProgress(state.currentRound);
       if (currentProg.timer && currentProg.timer.running){
@@ -1432,7 +1434,6 @@
       syncTimerUI();
     }
 
-    // run init on DOM ready
     document.addEventListener('DOMContentLoaded', init);
   </script>
 </body>
